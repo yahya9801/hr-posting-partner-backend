@@ -6,6 +6,8 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\EditorUploadController;
+use App\Http\Controllers\JobsApiController;
+use App\Http\Controllers\LocationApiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,6 +27,10 @@ Route::middleware('auth:sanctum')->get('/me', [AuthController::class, 'me']);
 Route::get('/locations', [LocationController::class, 'index']);
 Route::get('/roles', [RoleController::class, 'index']);
 Route::post('/editor-upload', [EditorUploadController::class, 'store']);
+
+Route::get('/jobs', [JobsApiController::class, 'index']);
+
+Route::get('/locations', [LocationApiController::class, 'index']);
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
