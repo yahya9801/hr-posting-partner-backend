@@ -12,7 +12,9 @@
 
     <header class="bg-white shadow p-4 mb-6">
         <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-xl font-bold">HR Posting Partner</h1>
+            <a href="/">
+                <h1 class="text-xl font-bold">HR Posting Partner</h1>
+            </a>
             @auth
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
