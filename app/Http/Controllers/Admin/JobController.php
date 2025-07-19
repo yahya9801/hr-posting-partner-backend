@@ -50,10 +50,15 @@ class JobController extends Controller
         if ($request->hasFile('image')) {
             $data['image_path'] = $request->file('image')->store('jobs', 'public');
         }
-    
+        $slug = $request->input('slug');
+        $data['slug'] = $slug
+            ? Job::generateUniqueSlug($slug)
+            : Job::generateUniqueSlug($data['job_title']);
+
         // ✅ Create the job
         $job = Job::create([
             'job_title'   => $data['job_title'],
+            'slug'       => $data['slug'],
             'description' => $data['description'],
             'posted_at'   => $data['posted_at'],
             'image_path'  => $data['image_path'] ?? null,
@@ -90,31 +95,76 @@ class JobController extends Controller
 
     public function edit(Job $job)
     {
-        return view('admin.jobs.edit', compact('job'));
+        $locations = Location::all();
+        $roles = Role::all();
+        $job->load('locations'); // eager load relationships\
+        $job->load('roles');
+        return view('admin.jobs.edit', compact('job', 'locations', 'roles'));
     }
 
     public function update(Request $request, Job $job)
     {
         $data = $request->validate([
-            'job_title'   => 'required|string|max:255',
+            'job_title' => 'required|string|max:255',
+            // 'slug' => 'nullable|string|max:255|unique:jobs,slug,' . $job->id,
+            'short_description' => 'nullable|string|max:300',
             'description' => 'nullable|string',
-            'posted_at'   => 'required|date',
-            'image'       => 'nullable|image|max:2048',
+            'posted_at' => 'required|date',
+            // 'expiry_date' => 'nullable|date|after_or_equal:today',
+            'image' => 'nullable|image|max:2048',
+            'locations' => 'required|array',
+            'roles' => 'required|array',
         ]);
-
+    
+        // Update slug if provided, or regenerate if title changed
+        if ($request->filled('slug')) {
+            $job->slug = Job::generateUniqueSlug($request->input('slug'));
+        } elseif ($job->isDirty('job_title')) {
+            $job->slug = Job::generateUniqueSlug($data['job_title']);
+        }
+    
         if ($request->hasFile('image')) {
-            // Optional: delete old image
-            if ($job->image_path) {
-                Storage::disk('public')->delete($job->image_path);
-            }
             $data['image_path'] = $request->file('image')->store('jobs', 'public');
         }
+    
+        $job->update([
+            'job_title' => $data['job_title'],
+            'slug' => $job->slug,
+            'short_description' => $data['short_description'],
+            'description' => $data['description'],
+            'posted_at' => $data['posted_at'],
+            // 'expiry_date' => $data['expiry_date'],
+            'image_path' => $data['image_path'] ?? $job->image_path,
+        ]);
+    
+        // Sync locations
+        $locationIds = [];
+        foreach ($data['locations'] as $loc) {
+            if (is_numeric($loc)) {
+                $locationIds[] = $loc;
+            } else {
+                $location = Location::firstOrCreate(['name' => $loc]);
+                $locationIds[] = $location->id;
+            }
+        }
+        $job->locations()->sync($locationIds);
 
-        $job->update($data);
-
+        $roleIds = [];
+        // dd($data['roles']);
+        foreach ($data['roles'] as $role) {
+            if (is_numeric($role)) {
+                $roleIds[] = $role;
+            } else {
+                $roleModel = Role::firstOrCreate(['name' => $role]);
+                $roleIds[] = $roleModel->id;
+            }
+        }
+        // dd($roleIds);
+        $job->roles()->sync($roleIds);
+    
         return redirect()->route('admin.jobs.index')->with('success', 'Job updated successfully.');
     }
-
+    
     public function destroy(Job $job)
     {
         if ($job->image_path) {
