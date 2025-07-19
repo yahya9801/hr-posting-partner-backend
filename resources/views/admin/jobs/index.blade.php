@@ -11,6 +11,7 @@
                 <tr>
                     <th class="p-3">Job Title</th>
                     <th class="p-3">Posted At</th>
+                    <th></th>
                     <th class="p-3">Actions</th>
                 </tr>
             </thead>
@@ -19,6 +20,7 @@
                 <tr class="border-b">
                     <td class="p-3">{{ $job->job_title }}</td>
                     <td class="p-3">{{ \Carbon\Carbon::parse($job->posted_at)->format('Y-m-d') }}</td>
+                    <td><a href="{{ route('admin.jobs.show', $job) }}" class="text-blue-600 font-medium hover:underline">View Details</a></td>
                     <td class="p-3 space-x-2">
                         <a href="{{ route('admin.jobs.edit', $job) }}" class="text-blue-600">Edit</a>
                         <form action="{{ route('admin.jobs.destroy', $job) }}" method="POST" class="inline">

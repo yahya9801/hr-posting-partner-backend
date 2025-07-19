@@ -29,7 +29,8 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', fn () => view('admin.dashboard'))->name('admin.dashboard');
 
-    Route::resource('/jobs', JobController::class);
+    // Route::resource('/jobs', JobController::class);
+    Route::resource('jobs', JobController::class)->only(['index', 'create', 'show' , 'edit', 'destroy']);
 
     
 });

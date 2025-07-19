@@ -24,6 +24,13 @@ class JobController extends Controller
         $locations = \App\Models\Location::orderBy('name')->get();
         return view('admin.jobs.create', compact('locations'));
     }
+
+    public function show(Job $job)
+    {
+        $job->load('locations'); // eager load relationships\
+        $job->load('roles');
+        return view('admin.jobs.show', compact('job'));
+    }
       
     public function store(Request $request)
     {
