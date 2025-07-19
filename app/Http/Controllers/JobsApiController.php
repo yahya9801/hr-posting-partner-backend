@@ -63,7 +63,7 @@ class JobsApiController extends Controller
                     'short_description' => $job->short_description,
                     'posted_at' => Carbon::parse($job->posted_at)->toDateString(),
                     'expiry_date' => $job->expiry_date ? Carbon::parse($job->expiry_date)->toDateString() : null,
-                    'image_url' => $job->image_path ? asset('storage/' . $job->image_path) : null,
+                    'image_path' => $job->image_path ? asset('storage/' . $job->image_path) : null,
                     'locations' => $job->locations->pluck('name'),
                     'roles' => $job->roles->pluck('name'),
                 ];
@@ -76,5 +76,19 @@ class JobsApiController extends Controller
             ],
         ]);
     }
+
+    public function showBySlug($slug)
+    {
+        $job = Job::with(['locations', 'roles']) // eager load relationships if needed
+                ->where('slug', $slug)
+                ->first();
+        if (!$job) {
+            return response()->json(['message' => 'Job not found'], 404);
+        }
+        $job->description = clean($job->description);
+
+        return response()->json($job);
+    }
+
 
 }

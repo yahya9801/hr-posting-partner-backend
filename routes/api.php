@@ -29,6 +29,7 @@ Route::get('/roles', [RoleController::class, 'index']);
 Route::post('/editor-upload', [EditorUploadController::class, 'store']);
 
 Route::get('/jobs', [JobsApiController::class, 'index']);
+Route::get('/jobs/{slug}', [JobsApiController::class, 'showBySlug']);
 
 Route::get('/locations', [LocationApiController::class, 'index']);
 
