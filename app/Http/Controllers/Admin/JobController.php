@@ -38,7 +38,9 @@ class JobController extends Controller
             'job_title'   => 'required|string|max:255',
             'description' => 'nullable|string',
             'short_description' => 'nullable|string',
+            'experience' => 'nullable|string',
             'posted_at'   => 'required|date',
+            'expiry_date'   => 'required|date',
             'image'       => 'nullable|image|max:2048',
             'locations'   => 'required|array',
             'roles'       => 'required|array',
@@ -62,7 +64,9 @@ class JobController extends Controller
             'slug'       => $data['slug'],
             'short_description' => $data['short_description'],
             'description' => $data['description'],
+            'experience' => $data['experience'],
             'posted_at'   => $data['posted_at'],
+            'expiry_date'   => $data['expiry_date'],
             'image_path'  => $data['image_path'] ?? null,
         ]);
     
@@ -112,7 +116,7 @@ class JobController extends Controller
             'short_description' => 'nullable|string|max:300',
             'description' => 'nullable|string',
             'posted_at' => 'required|date',
-            // 'expiry_date' => 'nullable|date|after_or_equal:today',
+            'expiry_date' => 'nullable|date|after_or_equal:today',
             'image' => 'nullable|image|max:2048',
             'locations' => 'required|array',
             'roles' => 'required|array',
@@ -135,7 +139,7 @@ class JobController extends Controller
             'short_description' => $data['short_description'],
             'description' => $data['description'],
             'posted_at' => $data['posted_at'],
-            // 'expiry_date' => $data['expiry_date'],
+            'expiry_date' => $data['expiry_date'],
             'image_path' => $data['image_path'] ?? $job->image_path,
         ]);
     

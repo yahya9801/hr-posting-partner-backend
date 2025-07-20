@@ -12,7 +12,7 @@ class JobsApiController extends Controller
     {
         $limit = $request->input('limit', 10); // default 10
         $page = $request->input('page', 1);
-
+        logger($request->all());
         $query = Job::with('locations')
             ->where(function ($q) {
                 $q->whereNull('expiry_date')->orWhere('expiry_date', '>=', now());
@@ -27,23 +27,31 @@ class JobsApiController extends Controller
         }
 
         // ✅ Location filtering
-        if ($request->filled('location')) {
-            $locationIds = explode(',', $request->input('location'));
+        if ($request->filled('locations')) {
+            $locationIds = explode(',', $request->input('locations'));
             $query->whereHas('locations', function ($q) use ($locationIds) {
-                $q->whereIn('locations.id', $locationIds);
+                $q->whereIn('locations.name', $locationIds);
             });
         }
 
         if ($request->filled('role')) {
             $roleIds = explode(',', $request->input('role'));
             $query->whereHas('roles', function ($q) use ($roleIds) {
-                $q->whereIn('roles.id', $roleIds);
+                $q->whereIn('roles.name', $roleIds);
             });
         }
 
         // ✅ Posted After filter
-        if ($request->filled('posted_after')) {
-            $query->whereDate('posted_at', '>=', $request->input('posted_after'));
+        if ($request->filled('start')) {
+            $query->whereDate('posted_at', '>=', $request->input('start'));
+        }
+
+        if ($request->filled('end')) {
+            $query->whereDate('posted_at', '>=', $request->input('end'));
+        }
+
+        if ($request->filled('experience')) {
+            $query->where('experience', $request->input('experience'));
         }
 
         // ✅ Manual pagination
@@ -52,6 +60,8 @@ class JobsApiController extends Controller
                     ->skip(($page - 1) * $limit)
                     ->take($limit)
                     ->get();
+
+        logger($jobs->toArray());
 
         return response()->json([
             'data' => $jobs->map(function ($job) {

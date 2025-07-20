@@ -12,6 +12,9 @@ class Job extends Model
         'description',
         'image_path',
         'posted_at',
+        'expiry_date',
+        'short_description',
+        'experience'
     ];
 
     public function locations()
