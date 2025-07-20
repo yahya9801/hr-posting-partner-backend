@@ -32,9 +32,7 @@
         <div>
             <label class="block font-semibold mb-1">Location</label>
             <select name="locations[]" id="location-select" multiple class="w-full border p-2 rounded">
-                @foreach ($locations as $location)
-                    <option value="{{ $location->id }}">{{ $location->name }}</option>
-                @endforeach
+               
             </select>
             <p class="text-sm text-gray-500 mt-1">You can also type to add a new location.</p>
         </div>
@@ -45,6 +43,23 @@
                 {{-- Select2 will handle options via AJAX --}}
             </select>
             <p class="text-sm text-gray-500 mt-1">You can also type to add a new role.</p>
+        </div>
+
+        <div class="mb-4">
+            <label for="experience" class="block text-sm font-medium text-gray-700">Experience</label>
+            <select name="experience" id="experience" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                <option value="Yes">Yes</option>
+                <option value="No" >No</option>
+                <option value="Less than 1 year">Less than 1 year</option>
+            </select>
+            @error('experience')
+                <span class="text-red-500 text-sm">{{ $message }}</span>
+            @enderror
+        </div>
+
+        <div>
+            <label class="block font-semibold mb-1">Short Description</label>
+            <textarea id="short_description" name="short_description" class="w-full border p-2 rounded" rows="6"></textarea>
         </div>
 
         <div>
@@ -144,10 +159,10 @@
                     $('#postBody').trigger('change');
                 });
             },
-            plugins: 'paste advcode',
-            toolbar: 'paste code',
+            plugins: 'advcode',
+            toolbar: 'code',
             paste_data_images: true,
-            selector: 'textarea', // change this value according to your HTML
+            selector: '#description', // change this value according to your HTML
             advcode_inline: true,
             valid_elements: 'p[style],h1,h2,h3,h4,h5,h6,strong/b,em/i,ul,ol,li,img[src],a[href]'
         });

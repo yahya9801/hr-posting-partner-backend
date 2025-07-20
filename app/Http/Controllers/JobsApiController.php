@@ -59,6 +59,7 @@ class JobsApiController extends Controller
                     'id' => $job->id,
                     'title' => $job->job_title,
                     'slug' => $job->slug,
+                    'experience' => $job->experience,
                     'description' => $job->description,
                     'short_description' => $job->short_description,
                     'posted_at' => Carbon::parse($job->posted_at)->toDateString(),

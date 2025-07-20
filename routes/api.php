@@ -31,7 +31,7 @@ Route::post('/editor-upload', [EditorUploadController::class, 'store']);
 Route::get('/jobs', [JobsApiController::class, 'index']);
 Route::get('/jobs/{slug}', [JobsApiController::class, 'showBySlug']);
 
-Route::get('/locations', [LocationApiController::class, 'index']);
+// Route::get('/locations', [LocationApiController::class, 'index']);
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();

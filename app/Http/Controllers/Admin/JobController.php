@@ -21,8 +21,8 @@ class JobController extends Controller
 
     public function create()
     {
-        $locations = \App\Models\Location::orderBy('name')->get();
-        return view('admin.jobs.create', compact('locations'));
+        // $locations = \App\Models\Location::orderBy('name')->get();
+        return view('admin.jobs.create');
     }
 
     public function show(Job $job)
@@ -37,6 +37,7 @@ class JobController extends Controller
         $data = $request->validate([
             'job_title'   => 'required|string|max:255',
             'description' => 'nullable|string',
+            'short_description' => 'nullable|string',
             'posted_at'   => 'required|date',
             'image'       => 'nullable|image|max:2048',
             'locations'   => 'required|array',
@@ -59,6 +60,7 @@ class JobController extends Controller
         $job = Job::create([
             'job_title'   => $data['job_title'],
             'slug'       => $data['slug'],
+            'short_description' => $data['short_description'],
             'description' => $data['description'],
             'posted_at'   => $data['posted_at'],
             'image_path'  => $data['image_path'] ?? null,

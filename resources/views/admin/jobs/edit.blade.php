@@ -46,7 +46,7 @@
 
         <div class="mb-4">
             <label class="block font-semibold mb-1">Location</label>
-            <select name="locations[]" id="location-select" multiple class="w-full border p-2 rounded">
+            <select name="locations[]" id="location-select2" multiple class="w-full border p-2 rounded">
                 @foreach ($locations as $location)
                     <option value="{{ $location->id }}"
                         {{ in_array($location->id, $job->locations->pluck('id')->toArray()) ? 'selected' : '' }}>
@@ -75,7 +75,7 @@
 @push('scripts')
 <script>
     $(document).ready(function () {
-        $('#location-select').select2({
+        $('#location-select2').select2({
             tags: true,
             placeholder: "Select or type a new location",
             width: '100%',
@@ -150,8 +150,8 @@
                     $('#postBody').trigger('change');
                 });
             },
-            plugins: 'paste advcode',
-            toolbar: 'paste code',
+            plugins: 'advcode',
+            toolbar: 'code',
             paste_data_images: true,
             selector: '#description', // change this value according to your HTML
             advcode_inline: true,
