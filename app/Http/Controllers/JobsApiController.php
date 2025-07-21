@@ -47,7 +47,7 @@ class JobsApiController extends Controller
         }
 
         if ($request->filled('end')) {
-            $query->whereDate('posted_at', '>=', $request->input('end'));
+            $query->whereDate('posted_at', '<=', $request->input('end'));
         }
 
         if ($request->filled('experience')) {
