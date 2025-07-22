@@ -22,7 +22,8 @@ class JobsApiController extends Controller
             $searchTerm = $request->input('q');
             $query->where(function ($q) use ($searchTerm) {
                 $q->where('job_title', 'like', "%{$searchTerm}%")
-                    ->orWhere('description', 'like', "%{$searchTerm}%");
+                    ->orWhere('description', 'like', "%{$searchTerm}%")
+                    ->orWhere('short_description', 'like', "%{$searchTerm}%");
             });
         }
 
