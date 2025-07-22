@@ -99,8 +99,8 @@
 @endsection
 
 @push('scripts')
-    <script src="https://cdn.tiny.cloud/1/ebdkodarptpuz9vfq6672fcp1iclck2tihn0u0mkfn4u7mxu/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
-
+    <!-- <script src="https://cdn.tiny.cloud/1/ebdkodarptpuz9vfq6672fcp1iclck2tihn0u0mkfn4u7mxu/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script> -->
+    <script src="{{ asset('tinymce/tinymce.min.js') }}"></script>
     <script>
         $(document).ready(function () {
             $('#location-select').select2({

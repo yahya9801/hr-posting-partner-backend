@@ -56,7 +56,8 @@ class JobsApiController extends Controller
 
         // ✅ Manual pagination
         $total = $query->count();
-        $jobs = $query->latest('posted_at')
+        $jobs = $query->orderBy('posted_at', 'desc')
+                    ->orderBy('created_at', 'desc')
                     ->skip(($page - 1) * $limit)
                     ->take($limit)
                     ->get();
