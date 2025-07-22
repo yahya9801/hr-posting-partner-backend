@@ -96,7 +96,7 @@ class JobsApiController extends Controller
 
     public function showBySlug($slug)
     {
-        $job = Job::with(['locations', 'roles']) // eager load relationships if needed
+        $job = Job::with(['locations', 'roles', 'experiences']) // eager load relationships if needed
                 ->where('slug', $slug)
                 ->first();
         if (!$job) {
