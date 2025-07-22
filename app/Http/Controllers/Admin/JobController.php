@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Experience;
 use App\Models\Job;
 use App\Models\Location;
 use App\Models\Role;
@@ -38,7 +39,7 @@ class JobController extends Controller
             'job_title'   => 'required|string|max:255',
             'description' => 'nullable|string',
             'short_description' => 'nullable|string',
-            'experience' => 'nullable|string',
+            'experience' => 'required|array',
             'posted_at'   => 'required|date',
             'expiry_date'   => 'required|date',
             'image'       => 'nullable|image|max:2048',
@@ -64,7 +65,7 @@ class JobController extends Controller
             'slug'       => $data['slug'],
             'short_description' => $data['short_description'],
             'description' => $data['description'],
-            'experience' => $data['experience'],
+            // 'experience' => $data['experience'],
             'posted_at'   => $data['posted_at'],
             'expiry_date'   => $data['expiry_date'],
             'image_path'  => $data['image_path'] ?? null,
@@ -81,6 +82,16 @@ class JobController extends Controller
             }
         }
         $job->locations()->sync($locationIds);
+
+        foreach ($data['experience'] as $loc) {
+            if (is_numeric($loc)) {
+                $experienceIds[] = $loc;
+            } else {
+                $experience = Experience::firstOrCreate(['name' => $loc]);
+                $experienceIds[] = $experience->id;
+            }
+        }
+        $job->experiences()->sync($experienceIds);
     
         // ✅ Sync roles
         $roleIds = [];
@@ -103,9 +114,11 @@ class JobController extends Controller
     {
         $locations = Location::all();
         $roles = Role::all();
+        $experiences = Experience::all();
         $job->load('locations'); // eager load relationships\
         $job->load('roles');
-        return view('admin.jobs.edit', compact('job', 'locations', 'roles'));
+        $job->load('experiences');
+        return view('admin.jobs.edit', compact('job', 'locations', 'roles', 'experiences'));
     }
 
     public function update(Request $request, Job $job)
@@ -120,6 +133,7 @@ class JobController extends Controller
             'image' => 'nullable|image|max:2048',
             'locations' => 'required|array',
             'roles' => 'required|array',
+            'experience' => 'required|array',
         ]);
     
         // Update slug if provided, or regenerate if title changed
@@ -154,6 +168,17 @@ class JobController extends Controller
             }
         }
         $job->locations()->sync($locationIds);
+
+        
+        foreach ($data['experience'] as $exp) {
+            if (is_numeric($exp)) {
+                $experienceIds[] = $exp;
+            } else {
+                $experience = Experience::firstOrCreate(['name' => $exp]);
+                $experienceIds[] = $experience->id;
+            }
+        }
+        $job->experiences()->sync($experienceIds);
 
         $roleIds = [];
         // dd($data['roles']);

@@ -81,6 +81,19 @@
             <p class="text-xs text-gray-500 mt-1">You can also type to add a new role.</p>
         </div>
 
+        <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Experience</label>
+                <select name="experience[]" id="experience-select" multiple class="w-full border border-gray-300 p-2 rounded">
+                @foreach ($experiences as $experience)
+                    <option value="{{ $experience->id }}" {{ in_array($experience->id, $job->experiences->pluck('id')->toArray()) ? 'selected' : '' }}>
+                        {{ $experience->name }}
+                    </option>
+                @endforeach
+
+                </select>
+                <p class="text-xs text-gray-500 mt-1">Type to add a new experience.</p>
+            </div>
+
         {{-- Submit --}}
         <div>
             <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded shadow">Update Job</button>
@@ -116,6 +129,8 @@
 
             setupSelect2('#location-select2', "{{ url('/api/locations') }}");
             setupSelect2('#role-select', "{{ url('/api/roles') }}");
+            setupSelect2('#experience-select', "{{ url('/api/experience') }}");
+
 
             tinymce.init({
                 selector: '#description',

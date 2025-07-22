@@ -27,6 +27,11 @@ class Job extends Model
         return $this->belongsToMany(Role::class, 'job_role');
     }
 
+    public function experiences()
+    {
+        return $this->belongsToMany(Experience::class);
+    }
+
     protected static function booted()
     {
         static::creating(function ($job) {

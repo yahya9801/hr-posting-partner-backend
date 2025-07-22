@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Experience;
 use App\Models\Role;
 use Illuminate\Http\Request;
 
@@ -18,4 +19,18 @@ class RoleController extends Controller
 
         return response()->json($roles);
     }
+
+    public function experience(Request $request)
+    {
+        $search = $request->input('q');
+
+        $roles = Experience::query()
+            ->when($search, fn($q) => $q->where('name', 'like', "%$search%"))
+            ->limit(10)
+            ->get(['id', 'name as text']); // Select2 expects `id` and `text`
+        
+        return response()->json($roles);
+    }
+
+
 }

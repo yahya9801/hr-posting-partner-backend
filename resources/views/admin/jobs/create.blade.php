@@ -45,7 +45,13 @@
                 <p class="text-xs text-gray-500 mt-1">Type to add a new role.</p>
             </div>
 
-            {{-- Experience --}}
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Experience</label>
+                <select name="experience[]" id="experience-select" multiple class="w-full border border-gray-300 p-2 rounded"></select>
+                <p class="text-xs text-gray-500 mt-1">Type to add a new experience.</p>
+            </div>
+
+            <!-- {{-- Experience --}}
             <div>
                 <label for="experience" class="block text-sm font-medium text-gray-700 mb-1">Experience</label>
                 <select name="experience" id="experience" class="w-full border border-gray-300 p-2 rounded">
@@ -56,7 +62,7 @@
                 @error('experience')
                     <span class="text-red-500 text-sm">{{ $message }}</span>
                 @enderror
-            </div>
+            </div> -->
 
             {{-- Short Description --}}
             <div>
@@ -127,6 +133,24 @@
                 width: '100%',
                 ajax: {
                     url: "{{ url('/api/roles') }}",
+                    dataType: 'json',
+                    delay: 250,
+                    data: params => ({ q: params.term }),
+                    processResults: data => ({ results: data }),
+                    cache: true
+                },
+                createTag: params => {
+                    let term = $.trim(params.term);
+                    return term ? { id: term, text: term, newTag: true } : null;
+                }
+            });
+
+            $('#experience-select').select2({
+                tags: true,
+                placeholder: "Select or type a new Experience",
+                width: '100%',
+                ajax: {
+                    url: "{{ url('/api/experience') }}",
                     dataType: 'json',
                     delay: 250,
                     data: params => ({ q: params.term }),

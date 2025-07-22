@@ -26,6 +26,8 @@ Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logo
 Route::middleware('auth:sanctum')->get('/me', [AuthController::class, 'me']);
 Route::get('/locations', [LocationController::class, 'index']);
 Route::get('/roles', [RoleController::class, 'index']);
+Route::get('/experience', [RoleController::class, 'experience']);
+
 Route::post('/editor-upload', [EditorUploadController::class, 'store']);
 
 Route::get('/jobs', [JobsApiController::class, 'index']);

@@ -51,8 +51,12 @@ class JobsApiController extends Controller
         }
 
         if ($request->filled('experience')) {
-            $query->where('experience', $request->input('experience'));
+            $experienceNames = explode(',', $request->input('experience'));
+            $query->whereHas('experiences', function ($q) use ($experienceNames) {
+                $q->whereIn('name', $experienceNames);
+            });
         }
+        
 
         // ✅ Manual pagination
         $total = $query->count();
@@ -70,7 +74,7 @@ class JobsApiController extends Controller
                     'id' => $job->id,
                     'title' => $job->job_title,
                     'slug' => $job->slug,
-                    'experience' => $job->experience,
+                    'experiences' => $job->experiences->pluck('name'),
                     'description' => $job->description,
                     'short_description' => $job->short_description,
                     'posted_at' => Carbon::parse($job->posted_at)->toDateString(),
