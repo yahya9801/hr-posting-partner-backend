@@ -38,7 +38,7 @@ class JobController extends Controller
         $data = $request->validate([
             'job_title'   => 'required|string|max:255',
             'description' => 'nullable|string',
-            'short_description' => 'nullable|string',
+            'short_description' => 'nullable|string|max:100',
             'experience' => 'required|array',
             'posted_at'   => 'required|date',
             'expiry_date'   => 'required|date',
@@ -126,7 +126,7 @@ class JobController extends Controller
         $data = $request->validate([
             'job_title' => 'required|string|max:255',
             // 'slug' => 'nullable|string|max:255|unique:jobs,slug,' . $job->id,
-            'short_description' => 'nullable|string|max:300',
+            'short_description' => 'nullable|string|max:100',
             'description' => 'nullable|string',
             'posted_at' => 'required|date',
             'expiry_date' => 'nullable|date|after_or_equal:today',
