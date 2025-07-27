@@ -78,8 +78,15 @@
 
             {{-- Image --}}
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Job Image</label>
-                <input type="file" name="image" class="w-full text-sm">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Job Images</label>
+                <input
+                    type="file"
+                    name="images[]"
+                    multiple
+                    accept="image/*"
+                    class="w-full text-sm border border-gray-300 rounded px-3 py-2"
+                >
+                <small class="text-gray-500">You can upload multiple images.</small>
             </div>
 
             {{-- Dates --}}

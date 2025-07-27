@@ -38,11 +38,11 @@ class JobController extends Controller
         $data = $request->validate([
             'job_title'   => 'required|string|max:255',
             'description' => 'nullable|string',
-            'short_description' => 'nullable|string|max:100',
+            'short_description' => 'nullable|string',
             'experience' => 'required|array',
             'posted_at'   => 'required|date',
             'expiry_date'   => 'required|date',
-            'image'       => 'nullable|image|max:2048',
+            'images.*'          => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048', // Each image rule
             'locations'   => 'required|array',
             'roles'       => 'required|array',
         ]);
@@ -68,8 +68,18 @@ class JobController extends Controller
             // 'experience' => $data['experience'],
             'posted_at'   => $data['posted_at'],
             'expiry_date'   => $data['expiry_date'],
-            'image_path'  => $data['image_path'] ?? null,
+            // 'image_path'  => $data['image_path'] ?? null,
         ]);
+
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                $path = $image->store('jobs', 'public');
+                $job->images()->create([
+                    'image_path' => $path,
+                ]);
+            }
+        }
+    
     
         // ✅ Sync locations
         $locationIds = [];
@@ -123,18 +133,21 @@ class JobController extends Controller
 
     public function update(Request $request, Job $job)
     {
+        logger($request->all);
         $data = $request->validate([
             'job_title' => 'required|string|max:255',
             // 'slug' => 'nullable|string|max:255|unique:jobs,slug,' . $job->id,
-            'short_description' => 'nullable|string|max:100',
+            'short_description' => 'nullable|string',
             'description' => 'nullable|string',
             'posted_at' => 'required|date',
             'expiry_date' => 'nullable|date|after_or_equal:today',
-            'image' => 'nullable|image|max:2048',
+            'images' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048', // Each image rule
             'locations' => 'required|array',
             'roles' => 'required|array',
             'experience' => 'required|array',
         ]);
+
+        logger($data);
     
         // Update slug if provided, or regenerate if title changed
         if ($request->filled('slug')) {
@@ -143,10 +156,8 @@ class JobController extends Controller
             $job->slug = Job::generateUniqueSlug($data['job_title']);
         }
     
-        if ($request->hasFile('image')) {
-            $data['image_path'] = $request->file('image')->store('jobs', 'public');
-        }
-    
+      
+        
         $job->update([
             'job_title' => $data['job_title'],
             'slug' => $job->slug,
@@ -154,8 +165,18 @@ class JobController extends Controller
             'description' => $data['description'],
             'posted_at' => $data['posted_at'],
             'expiry_date' => $data['expiry_date'],
-            'image_path' => $data['image_path'] ?? $job->image_path,
+            // 'image_path' => $data['image_path'] ?? $job->image_path,
         ]);
+        logger($request->hasFile('images'));
+
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                $path = $image->store('jobs', 'public');
+                $job->images()->create([
+                    'image_path' => $path,
+                ]);
+            }
+        }
     
         // Sync locations
         $locationIds = [];

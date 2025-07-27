@@ -35,10 +35,14 @@
 
         {{-- Image Upload --}}
         <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Image</label>
-            <input type="file" name="image" class="text-sm">
-            @if ($job->image_path)
-                <img src="{{ asset('storage/' . $job->image_path) }}" class="mt-2 w-32 h-32 object-cover rounded" />
+            <label class="block text-sm font-medium text-gray-700 mb-1">Images</label>
+            <input type="file" name="images[]" multiple accept="image/*" class="text-sm border rounded px-2 py-1">
+
+            @if ($job->images)
+
+                @foreach ($job->images as $image)
+                <img src="{{ asset('storage/' . $image->image_path) }}" class="mt-2 w-32 h-32 object-cover rounded" />
+                @endforeach
             @endif
         </div>
 
@@ -61,9 +65,9 @@
             <label class="block text-sm font-medium text-gray-700 mb-1">Location(s)</label>
             <select name="locations[]" id="location-select2" multiple class="w-full border p-2 rounded">
                 @foreach ($locations as $location)
-                    <option value="{{ $location->id }}" {{ in_array($location->id, $job->locations->pluck('id')->toArray()) ? 'selected' : '' }}>
-                        {{ $location->name }}
-                    </option>
+                <option value="{{ $location->id }}" {{ in_array($location->id, $job->locations->pluck('id')->toArray()) ? 'selected' : '' }}>
+                    {{ $location->name }}
+                </option>
                 @endforeach
             </select>
         </div>
@@ -73,26 +77,26 @@
             <label class="block text-sm font-medium text-gray-700 mb-1">Role(s)</label>
             <select name="roles[]" id="role-select" multiple class="w-full border p-2 rounded">
                 @foreach ($roles as $role)
-                    <option value="{{ $role->id }}" {{ in_array($role->id, $job->roles->pluck('id')->toArray()) ? 'selected' : '' }}>
-                        {{ $role->name }}
-                    </option>
+                <option value="{{ $role->id }}" {{ in_array($role->id, $job->roles->pluck('id')->toArray()) ? 'selected' : '' }}>
+                    {{ $role->name }}
+                </option>
                 @endforeach
             </select>
             <p class="text-xs text-gray-500 mt-1">You can also type to add a new role.</p>
         </div>
 
         <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Experience</label>
-                <select name="experience[]" id="experience-select" multiple class="w-full border border-gray-300 p-2 rounded">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Experience</label>
+            <select name="experience[]" id="experience-select" multiple class="w-full border border-gray-300 p-2 rounded">
                 @foreach ($experiences as $experience)
-                    <option value="{{ $experience->id }}" {{ in_array($experience->id, $job->experiences->pluck('id')->toArray()) ? 'selected' : '' }}>
-                        {{ $experience->name }}
-                    </option>
+                <option value="{{ $experience->id }}" {{ in_array($experience->id, $job->experiences->pluck('id')->toArray()) ? 'selected' : '' }}>
+                    {{ $experience->name }}
+                </option>
                 @endforeach
 
-                </select>
-                <p class="text-xs text-gray-500 mt-1">Type to add a new experience.</p>
-            </div>
+            </select>
+            <p class="text-xs text-gray-500 mt-1">Type to add a new experience.</p>
+        </div>
 
         {{-- Submit --}}
         <div>
@@ -103,49 +107,57 @@
 @endsection
 
 @push('scripts')
-    <!-- <script src="https://cdn.tiny.cloud/1/ebdkodarptpuz9vfq6672fcp1iclck2tihn0u0mkfn4u7mxu/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script> -->
-    <script src="{{ asset('tinymce/tinymce.min.js') }}"></script>
-    <script>
-        $(document).ready(function () {
-            function setupSelect2(id, url) {
-                $(id).select2({
-                    tags: true,
-                    placeholder: "Select or type to add new",
-                    width: '100%',
-                    ajax: {
-                        url: url,
-                        dataType: 'json',
-                        delay: 250,
-                        data: params => ({ q: params.term }),
-                        processResults: data => ({ results: data }),
-                        cache: true
-                    },
-                    createTag: params => {
-                        let term = $.trim(params.term);
-                        return term ? { id: term, text: term, newTag: true } : null;
-                    }
-                });
-            }
-
-            setupSelect2('#location-select2', "{{ url('/api/locations') }}");
-            setupSelect2('#role-select', "{{ url('/api/roles') }}");
-            setupSelect2('#experience-select', "{{ url('/api/experience') }}");
-
-
-            tinymce.init({
-                selector: '#description',
-                plugins: 'advcode',
-                toolbar: 'code',
-                paste_data_images: true,
-                advcode_inline: true,
-                valid_elements: 'p[style],h1,h2,h3,h4,h5,h6,strong/b,em/i,ul,ol,li,img[src],a[href]',
-                setup: editor => {
-                    editor.on('change', () => {
-                        editor.save();
-                        $('#description').trigger('change');
-                    });
+<!-- <script src="https://cdn.tiny.cloud/1/ebdkodarptpuz9vfq6672fcp1iclck2tihn0u0mkfn4u7mxu/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script> -->
+<script src="{{ asset('tinymce/tinymce.min.js') }}"></script>
+<script>
+    $(document).ready(function() {
+        function setupSelect2(id, url) {
+            $(id).select2({
+                tags: true,
+                placeholder: "Select or type to add new",
+                width: '100%',
+                ajax: {
+                    url: url,
+                    dataType: 'json',
+                    delay: 250,
+                    data: params => ({
+                        q: params.term
+                    }),
+                    processResults: data => ({
+                        results: data
+                    }),
+                    cache: true
+                },
+                createTag: params => {
+                    let term = $.trim(params.term);
+                    return term ? {
+                        id: term,
+                        text: term,
+                        newTag: true
+                    } : null;
                 }
             });
+        }
+
+        setupSelect2('#location-select2', "{{ url('/api/locations') }}");
+        setupSelect2('#role-select', "{{ url('/api/roles') }}");
+        setupSelect2('#experience-select', "{{ url('/api/experience') }}");
+
+
+        tinymce.init({
+            selector: '#description',
+            plugins: 'advcode',
+            toolbar: 'code',
+            paste_data_images: true,
+            advcode_inline: true,
+            valid_elements: 'p[style],h1,h2,h3,h4,h5,h6,strong/b,em/i,ul,ol,li,img[src],a[href]',
+            setup: editor => {
+                editor.on('change', () => {
+                    editor.save();
+                    $('#description').trigger('change');
+                });
+            }
         });
-    </script>
+    });
+</script>
 @endpush

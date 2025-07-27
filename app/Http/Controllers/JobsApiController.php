@@ -80,7 +80,7 @@ class JobsApiController extends Controller
                     'short_description' => $job->short_description,
                     'posted_at' => Carbon::parse($job->posted_at)->toDateString(),
                     'expiry_date' => $job->expiry_date ? Carbon::parse($job->expiry_date)->toDateString() : null,
-                    'image_path' => $job->image_path ? asset('storage/' . $job->image_path) : null,
+                    'images' => $job->images->map(fn($img) => asset('storage/' . $img->image_path)),
                     'locations' => $job->locations->pluck('name'),
                     'roles' => $job->roles->pluck('name'),
                 ];
@@ -96,7 +96,7 @@ class JobsApiController extends Controller
 
     public function showBySlug($slug)
     {
-        $job = Job::with(['locations', 'roles', 'experiences']) // eager load relationships if needed
+        $job = Job::with(['locations', 'roles', 'experiences', 'images'])// eager load relationships if needed
                 ->where('slug', $slug)
                 ->first();
         if (!$job) {

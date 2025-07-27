@@ -32,6 +32,12 @@ class Job extends Model
         return $this->belongsToMany(Experience::class);
     }
 
+    public function images()
+    {
+        return $this->hasMany(JobImages::class);
+    }
+
+
     protected static function booted()
     {
         static::creating(function ($job) {

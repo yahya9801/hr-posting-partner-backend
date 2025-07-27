@@ -16,6 +16,33 @@ use App\Http\Controllers\Admin\JobController;
 |
 */
 
+Route::get('/clean', function() {
+ 
+    $routeClear = Artisan::call('route:clear');
+    dump(Artisan::output());
+
+    $configClear = Artisan::call('config:clear');
+    dump(Artisan::output());
+
+    $optimizeClear = Artisan::call('optimize:clear');
+    dump(Artisan::output());    
+    
+    $viewClear = Artisan::call('view:clear');
+    dump(Artisan::output());
+    
+    $viewCache = Artisan::call('view:cache');
+    dump(Artisan::output());
+    
+    $cacheConfig = Artisan::call('config:cache');
+    dump('config:cache'. Artisan::output());
+
+    $migrate = Artisan::call('migrate');
+    dump(Artisan::output());
+
+    dump('----Done----');
+    exit;
+});
+
 Route::get('/', function () {
     return Auth::check()
         ? redirect()->route('admin.dashboard')
