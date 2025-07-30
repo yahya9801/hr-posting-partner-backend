@@ -22,13 +22,17 @@
             </div>
         @endif
 
-        <form method="POST" action="{{ route('admin.jobs.store') }}" enctype="multipart/form-data" class="space-y-6">
+        <div id="form-errors" class="bg-red-100 border border-red-400 text-red-700 p-4 rounded mb-6 hidden">
+            <ul id="form-errors-list" class="list-disc list-inside text-sm space-y-1"></ul>
+        </div>
+
+        <form method="POST" id='job-create-form' action="{{ route('admin.jobs.store') }}" enctype="multipart/form-data" class="space-y-6">
             @csrf
 
             {{-- Job Title --}}
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Job Title</label>
-                <input type="text" name="job_title" class="w-full border border-gray-300 p-2 rounded focus:outline-none focus:ring focus:border-blue-400" required>
+                <input type="text" value="{{ old('job_title') }}"name="job_title" class="w-full border border-gray-300 p-2 rounded focus:outline-none focus:ring focus:border-blue-400" required>
             </div>
 
             {{-- Locations --}}
@@ -71,9 +75,9 @@
             </div>
 
             {{-- Full Description --}}
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Full Description</label>
-                <textarea id="description" name="description" rows="6" class="w-full border border-gray-300 p-2 rounded resize-none"></textarea>
+            <div class="mb-3">
+                <label for="description" class="form-label">description</label>
+                <x-wysiwyg-editor name="description" :value="old('description')" id="description-editor" />
             </div>
 
             {{-- Image --}}
@@ -171,22 +175,110 @@
             });
         });
 
-        document.addEventListener('DOMContentLoaded', function () {
-            tinymce.init({
-                selector: '#description',
-                plugins: 'advcode',
-                toolbar: 'code',
-                paste_data_images: true,
-                advcode_inline: true,
-                valid_elements: 'p[style],h1,h2,h3,h4,h5,h6,strong/b,em/i,ul,ol,li,img[src],a[href]',
-                setup: function (editor) {
-                    editor.on('change', function () {
-                        editor.save();
-                        $('#description').trigger('change');
-                    });
-                }
-            });
-        });
+
+        // document.querySelector('form')?.addEventListener('submit', function () {
+        //     document.getElementById('editor-content').value = document.querySelector('.editor').innerHTML;
+        
+        //     console.log(document.querySelector('.editor').innerHTML)
+        // });
+        // document.addEventListener('DOMContentLoaded', function () {
+        //     tinymce.init({
+        //         selector: '#description',
+        //         plugins: 'advcode',
+        //         toolbar: 'code',
+        //         paste_data_images: true,
+        //         advcode_inline: true,
+        //         valid_elements: 'p[style],h1,h2,h3,h4,h5,h6,strong/b,em/i,ul,ol,li,img[src],a[href]',
+        //         setup: function (editor) {
+        //             editor.on('change', function () {
+        //                 editor.save();
+        //                 $('#description').trigger('change');
+        //             });
+        //         }
+        //     });
+        // });
     </script>
+        <script>
+function handleEditorFormSubmit(formId, editorId, textareaId) {
+  const form = document.getElementById('job-create-form');
+  const editor = document.getElementById('description-editor');
+  const hiddenTextarea = document.getElementById('hidden-description-editor');
+
+  if (!form || !editor || !hiddenTextarea) {
+    console.warn('Missing form, editor, or textarea.');
+    return;
+  }
+
+  form.addEventListener('submit', function () {
+    hiddenTextarea.value = editor.getHTML();
+    console.log('Editor HTML saved:', hiddenTextarea.value);
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  handleEditorFormSubmit('job-create-form', 'description-editor', 'hidden-description-editor');
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('job-create-form');
+
+    form.addEventListener('submit', function (e) {
+        const errors = [];
+
+        // Clear previous errors
+        document.getElementById('form-errors').classList.add('hidden');
+        document.getElementById('form-errors-list').innerHTML = '';
+
+        // Job Title
+        const jobTitle = document.querySelector('[name="job_title"]').value.trim();
+        if (!jobTitle) {
+            errors.push("Job title is required.");
+        }
+
+        // Locations
+        const locations = $('#location-select').val();
+        if (!locations || locations.length === 0) {
+            errors.push("Please select at least one location.");
+        }
+
+        // Roles
+        const roles = $('#role-select').val();
+        if (!roles || roles.length === 0) {
+            errors.push("Please select at least one role.");
+        }
+
+        // Experience
+        const experience = $('#experience-select').val();
+        if (!experience || experience.length === 0) {
+            errors.push("Please select at least one experience level.");
+        }
+
+        // Set WYSIWYG content
+        const editorHtml = document.querySelector('.editor')?.innerHTML;
+        document.getElementById('editor-content').value = editorHtml;
+
+        // Optional: Validate WYSIWYG content
+        if (!editorHtml || editorHtml.trim() === '' || editorHtml.trim() === '<br>') {
+            errors.push("Job description cannot be empty.");
+        }
+
+        // If there are errors, prevent submission and display them
+        if (errors.length > 0) {
+            e.preventDefault();
+
+            const ul = document.getElementById('form-errors-list');
+            errors.forEach(err => {
+                const li = document.createElement('li');
+                li.textContent = err;
+                ul.appendChild(li);
+            });
+
+            document.getElementById('form-errors').classList.remove('hidden');
+        }
+    });
+});
+</script>
+
 @endpush
 
