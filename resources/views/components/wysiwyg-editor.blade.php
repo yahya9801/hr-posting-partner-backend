@@ -2,15 +2,15 @@
 @props(['name' => 'content', 'value' => '','id' => ''])
 
 @php
-  $editorId = $id ?: 'editor-' . $name;
+$editorId = $id ?: 'editor-' . $name;
 @endphp
 
 <div>
   <div class='editControls'>
-    @include('components.editor-toolbar')
+    @include('components.editor-toolbar', ['value' => $value])
   </div>
 
-  <textarea name="{{ $name }}"  id="hidden-{{ $editorId }}" hidden></textarea>
+  <textarea name="{{ $name }}"  id="hidden-{{ $editorId }}" hidden>{!! $value !!}<</textarea>
 </div>
 
 

@@ -1,3 +1,5 @@
+@props(['value' => ''])
+
 <div>
     <div class='editControls'>
       <div class='btn-group'>
@@ -106,5 +108,5 @@
       </div>
     </div>
     <div class='editor' id='description-editor' contenteditable>
-      
+    {!! $value !!}
   </div>
