@@ -22,49 +22,6 @@
             <input type="text" name="slug" disabled class="w-full border p-2 rounded bg-gray-100" value="{{ old('slug', $job->slug) }}">
         </div>
 
-        {{-- Short Description --}}
-        <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Short Description</label>
-            <textarea name="short_description" rows="3" class="w-full border p-2 rounded resize-none">{{ old('short_description', $job->short_description) }}</textarea>
-            @error('short_description') <p class="text-red-500 text-sm mt-1">{{ $message }}</p> @enderror
-        </div>
-
-        {{-- Full Description --}}
-        <div>
-            <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-            <!-- <input type="hidden" id="hidden-description-editor" name="description" value="{{ old('description', $job->description) }}"> -->
-            <x-wysiwyg-editor
-                name="description"
-                :value="old('description', $job->description)"
-                id="description-editor" />
-            @error('description') <p class="text-red-500 text-sm mt-1">{{ $message }}</p> @enderror
-        </div>
-
-        {{-- Image Upload --}}
-        <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Images</label>
-            <input type="file" name="images[]" multiple accept="image/*" class="text-sm border rounded px-2 py-1">
-            @if ($job->images)
-            @foreach ($job->images as $image)
-            <img src="{{ asset('storage/' . $image->image_path) }}" class="mt-2 w-32 h-32 object-cover rounded" />
-            @endforeach
-            @endif
-        </div>
-
-        {{-- Posted & Expiry Dates --}}
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Posted At</label>
-                <input type="date" name="posted_at" class="w-full border p-2 rounded" value="{{ old('posted_at', Carbon::parse($job->posted_at)->toDateString()) }}">
-                @error('posted_at') <p class="text-red-500 text-sm mt-1">{{ $message }}</p> @enderror
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Expiry At</label>
-                <input type="date" name="expiry_date" class="w-full border p-2 rounded" value="{{ old('expiry_date', Carbon::parse($job->expiry_date)->toDateString()) }}">
-                @error('expiry_date') <p class="text-red-500 text-sm mt-1">{{ $message }}</p> @enderror
-            </div>
-        </div>
-
         {{-- Locations --}}
         @php $oldLocations = old('locations', $job->locations->pluck('id')->toArray()); @endphp
         <div>
@@ -120,6 +77,51 @@
             </select>
             <p class="text-xs text-gray-500 mt-1">Type to add a new experience.</p>
         </div>
+
+        {{-- Short Description --}}
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Short Description</label>
+            <textarea name="short_description" rows="3" class="w-full border p-2 rounded resize-none">{{ old('short_description', $job->short_description) }}</textarea>
+            @error('short_description') <p class="text-red-500 text-sm mt-1">{{ $message }}</p> @enderror
+        </div>
+
+        {{-- Full Description --}}
+        <div>
+            <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+            <!-- <input type="hidden" id="hidden-description-editor" name="description" value="{{ old('description', $job->description) }}"> -->
+            <x-wysiwyg-editor
+                name="description"
+                :value="old('description', $job->description)"
+                id="description-editor" />
+            @error('description') <p class="text-red-500 text-sm mt-1">{{ $message }}</p> @enderror
+        </div>
+
+        {{-- Image Upload --}}
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Images</label>
+            <input type="file" name="images[]" multiple accept="image/*" class="text-sm border rounded px-2 py-1">
+            @if ($job->images)
+            @foreach ($job->images as $image)
+            <img src="{{ asset('storage/' . $image->image_path) }}" class="mt-2 w-32 h-32 object-cover rounded" />
+            @endforeach
+            @endif
+        </div>
+
+        {{-- Posted & Expiry Dates --}}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Posted At</label>
+                <input type="date" name="posted_at" class="w-full border p-2 rounded" value="{{ old('posted_at', Carbon::parse($job->posted_at)->toDateString()) }}">
+                @error('posted_at') <p class="text-red-500 text-sm mt-1">{{ $message }}</p> @enderror
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Expiry At</label>
+                <input type="date" name="expiry_date" class="w-full border p-2 rounded" value="{{ old('expiry_date', Carbon::parse($job->expiry_date)->toDateString()) }}">
+                @error('expiry_date') <p class="text-red-500 text-sm mt-1">{{ $message }}</p> @enderror
+            </div>
+        </div>
+
+       
 
         {{-- Submit --}}
         <div>
