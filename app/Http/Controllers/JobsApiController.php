@@ -13,10 +13,10 @@ class JobsApiController extends Controller
         $limit = $request->input('limit', 10); // default 10
         $page = $request->input('page', 1);
         logger($request->all());
-        $query = Job::with('locations')
-            ->where(function ($q) {
-                $q->whereNull('expiry_date')->orWhere('expiry_date', '>=', now());
-            });
+        $query = Job::with('locations');
+            // ->where(function ($q) {
+            //     $q->whereNull('expiry_date')->orWhere('expiry_date', '>=', now());
+            // })
 
         if ($request->filled('q')) {
             $searchTerm = $request->input('q');
