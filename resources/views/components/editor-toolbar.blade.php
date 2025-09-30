@@ -1,7 +1,7 @@
-@props(['value' => ''])
+﻿@props(['value' => '', 'editorId' => 'description-editor'])
 
-<div>
-    <div class='editControls'>
+<div class="wysiwyg__container flex flex-col">
+    <div class='editControls bg-gray-50 border-b border-gray-200 flex flex-wrap gap-2 justify-start p-2'>
       <div class='btn-group'>
         <a class='btn' data-role='undo' href='#' title="undo">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-counterclockwise" viewBox="0 0 16 16">
@@ -107,6 +107,10 @@
         </a>
       </div>
     </div>
-    <div class='editor' id='description-editor' contenteditable>
+    <div class='editor bg-white' id='{{ $editorId }}' contenteditable>
     {!! $value !!}
   </div>
+
+
+</div>
+

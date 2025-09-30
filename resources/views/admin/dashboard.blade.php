@@ -14,5 +14,13 @@
             <h3 class="font-semibold">Create Job</h3>
             <a href="{{ route('admin.jobs.create') }}" class="text-green-600 underline">Post a New Job</a>
         </div>
+        <div class="p-4 bg-white shadow rounded">
+            <h3 class="font-semibold">View Blog Posts</h3>
+            <a href="{{ route('admin.blogs.index') }}" class="text-blue-600 underline">Browse Blog Posts</a>
+        </div>
+        <div class="p-4 bg-white shadow rounded">
+            <h3 class="font-semibold">Create Blog Post</h3>
+            <a href="{{ route('admin.blogs.create') }}" class="text-green-600 underline">Write a New Post</a>
+        </div>
     </div>
 @endsection
