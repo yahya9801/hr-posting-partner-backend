@@ -14,6 +14,25 @@
     @endif
 
     @if ($posts->count())
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+            <p class="text-sm text-gray-500">
+                Showing {{ $posts->firstItem() }} to {{ $posts->lastItem() }} of {{ $posts->total() }} posts
+            </p>
+            <form method="GET" class="flex items-center gap-2 text-sm text-gray-600">
+                @foreach (request()->except('per_page') as $name => $value)
+                    @foreach ((array) $value as $hiddenValue)
+                        <input type="hidden" name="{{ $name }}" value="{{ $hiddenValue }}">
+                    @endforeach
+                @endforeach
+                <label for="per-page" class="text-sm text-gray-600 whitespace-nowrap">Rows per page</label>
+                <select id="per-page" name="per_page" class="border border-gray-300 rounded px-2 py-1 text-sm bg-white" onchange="this.form.submit()">
+                    @foreach ($perPageOptions as $option)
+                        <option value="{{ $option }}" @selected($option === $perPage)>{{ $option }}</option>
+                    @endforeach
+                </select>
+            </form>
+        </div>
+
         <div class="overflow-x-auto bg-white shadow rounded">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
@@ -60,9 +79,11 @@
             </table>
         </div>
 
-        <div class="mt-6">
-            {{ $posts->links('pagination::tailwind') }}
-        </div>
+        @if ($posts->hasPages())
+            <div class="mt-6">
+                {{ $posts->onEachSide(1)->links('pagination::tailwind') }}
+            </div>
+        @endif
     @else
         <div class="bg-white rounded shadow p-8 text-center text-gray-500">No blog posts yet.</div>
     @endif

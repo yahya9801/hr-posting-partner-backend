@@ -16,14 +16,22 @@ use Illuminate\View\View;
 
 class BlogController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
+        $perPage = (int) $request->input('per_page', 10);
+        $perPage = in_array($perPage, [10, 25, 50], true) ? $perPage : 10;
+
         $posts = BlogPost::with('category')
             ->latest('published_at')
             ->latest()
-            ->paginate(10);
+            ->paginate($perPage)
+            ->withQueryString();
 
-        return view('admin.blogs.index', compact('posts'));
+        return view('admin.blogs.index', [
+            'posts' => $posts,
+            'perPage' => $perPage,
+            'perPageOptions' => [10, 25, 50],
+        ]);
     }
 
     public function create(): View
