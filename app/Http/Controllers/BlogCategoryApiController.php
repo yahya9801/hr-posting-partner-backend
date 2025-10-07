@@ -24,6 +24,7 @@ class BlogCategoryApiController extends Controller
                         'slug',
                         'featured_image_path',
                         'published_at',
+                        'created_at',
                     ])
                         ->where('status', BlogPost::STATUS_PUBLISHED)
                         ->latest('published_at')
@@ -39,17 +40,20 @@ class BlogCategoryApiController extends Controller
             ]);
 
         $data = $categories->map(function (BlogCategory $category) {
+            $categoryImagePath = optional($category->posts->first())->featured_image_path;
+
             return [
                 'id' => $category->id,
                 'name' => $category->name,
                 'slug' => $category->slug,
+                'image_url' => $this->resolveImageUrl($categoryImagePath),
                 'posts' => $category->posts->map(function (BlogPost $post) {
                     return [
                         'id' => $post->id,
                         'title' => $post->title,
                         'slug' => $post->slug,
                         'image_url' => $this->resolveImageUrl($post->featured_image_path),
-                        'published_at' => optional($post->published_at)->toIso8601String(),
+                        'published_at' => $this->formatPublishedAt($post),
                     ];
                 }),
             ];
@@ -58,6 +62,18 @@ class BlogCategoryApiController extends Controller
         return response()->json([
             'data' => $data,
         ]);
+    }
+
+    private function formatPublishedAt(BlogPost $post): ?string
+    {
+        $timestamp = $post->published_at ?? $post->created_at;
+
+        if (!$timestamp) {
+            return null;
+        }
+
+        return $timestamp->timezone(config('app.timezone'))
+            ->format('M d, Y H:i');
     }
 
     private function resolveImageUrl(?string $path): ?string
