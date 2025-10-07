@@ -8,6 +8,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\EditorUploadController;
 use App\Http\Controllers\JobsApiController;
 use App\Http\Controllers\LocationApiController;
+use App\Http\Controllers\BlogCategoryApiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -32,6 +33,7 @@ Route::post('/editor-upload', [EditorUploadController::class, 'store']);
 
 Route::get('/jobs', [JobsApiController::class, 'index']);
 Route::get('/jobs/{slug}', [JobsApiController::class, 'showBySlug']);
+Route::get('/blogs/categories', [BlogCategoryApiController::class, 'index']);
 
 // Route::get('/locations', [LocationApiController::class, 'index']);
 
