@@ -66,10 +66,22 @@ class BlogCategoryApiController extends Controller
             return null;
         }
 
-        if (Storage::disk('public')->exists($path)) {
-            return Storage::disk('public')->url($path);
+        $baseUrl = config('app.asset_url') ?: config('app.url');
+        $baseUrl = $baseUrl ? rtrim($baseUrl, '/') : null;
+
+        if ($baseUrl === null || str_contains($baseUrl, 'localhost')) {
+            $baseUrl = 'https://admin.hrpostingpartner.com';
         }
 
-        return asset('storage/' . ltrim($path, '/'));
+        if (!$baseUrl) {
+            $storageUrl = Storage::disk('public')->url($path);
+            if (preg_match('#^https?://#i', $storageUrl)) {
+                return $storageUrl;
+            }
+
+            return url($storageUrl);
+        }
+
+        return sprintf('%s/storage/%s', $baseUrl, ltrim($path, '/'));
     }
 }
