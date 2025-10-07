@@ -9,6 +9,7 @@ use App\Http\Controllers\EditorUploadController;
 use App\Http\Controllers\JobsApiController;
 use App\Http\Controllers\LocationApiController;
 use App\Http\Controllers\BlogCategoryApiController;
+use App\Http\Controllers\BlogPostApiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -34,6 +35,8 @@ Route::post('/editor-upload', [EditorUploadController::class, 'store']);
 Route::get('/jobs', [JobsApiController::class, 'index']);
 Route::get('/jobs/{slug}', [JobsApiController::class, 'showBySlug']);
 Route::get('/blogs/categories', [BlogCategoryApiController::class, 'index']);
+Route::get('/blogs/{slug}', [BlogPostApiController::class, 'show'])
+    ->where('slug', '[A-Za-z0-9-]+');
 
 // Route::get('/locations', [LocationApiController::class, 'index']);
 
