@@ -27,7 +27,7 @@ class BlogCategoryApiController extends Controller
                         'created_at',
                     ])
                         ->where('status', BlogPost::STATUS_PUBLISHED)
-                        ->orderByRaw('COALESCE(published_at, created_at) DESC')
+                        ->orderByRaw('COALESCE(published_at) DESC')
                         // ⚠️ If Laravel 9+: this limits per category. If <9, see note below.
                         ->limit(3);
                 },
@@ -38,6 +38,7 @@ class BlogCategoryApiController extends Controller
                 'name',
                 'slug',
             ]);
+        dd($categories);
 
         $data = $categories->map(function (BlogCategory $category) {
             $categoryImagePath = optional($category->posts->first())->featured_image_path;
