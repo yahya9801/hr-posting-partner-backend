@@ -27,9 +27,9 @@ class BlogCategoryApiController extends Controller
                         'created_at',
                     ])
                         ->where('status', BlogPost::STATUS_PUBLISHED)
-                        ->latest('published_at')
-                        ->latest()
-                        ->take(3);
+                        ->orderByRaw('COALESCE(published_at, created_at) DESC')
+                        // ⚠️ If Laravel 9+: this limits per category. If <9, see note below.
+                        ->limit(3);
                 },
             ])
             ->orderBy('name')
