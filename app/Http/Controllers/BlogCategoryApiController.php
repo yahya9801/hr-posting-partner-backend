@@ -12,26 +12,6 @@ class BlogCategoryApiController extends Controller
     public function index(): JsonResponse
     {
         $categories = BlogCategory::query()
-            ->whereHas('posts', function ($query) {
-                $query->where('status', BlogPost::STATUS_PUBLISHED);
-            })
-            ->with([
-                'posts' => function ($query) {
-                    $query->select([
-                        'id',
-                        'category_id',
-                        'title',
-                        'slug',
-                        'featured_image_path',
-                        'published_at',
-                        'created_at',
-                    ])
-                        ->where('status', BlogPost::STATUS_PUBLISHED)
-                        ->latest('published_at')
-                        ->latest()
-                        ->take(3);
-                },
-            ])
             ->orderBy('name')
             ->get([
                 'id',
@@ -40,14 +20,35 @@ class BlogCategoryApiController extends Controller
             ]);
 
         $data = $categories->map(function (BlogCategory $category) {
-            $categoryImagePath = optional($category->posts->first())->featured_image_path;
+            $posts = BlogPost::query()
+                ->select([
+                    'id',
+                    'category_id',
+                    'title',
+                    'slug',
+                    'featured_image_path',
+                    'published_at',
+                    'created_at',
+                ])
+                ->where('status', BlogPost::STATUS_PUBLISHED)
+                ->where('category_id', $category->id)
+                ->orderByDesc('published_at')
+                ->orderByDesc('created_at')
+                ->take(3)
+                ->get();
+
+            if ($posts->isEmpty()) {
+                return null;
+            }
+
+            $categoryImagePath = optional($posts->first())->featured_image_path;
 
             return [
                 'id' => $category->id,
                 'name' => $category->name,
                 'slug' => $category->slug,
                 'image_url' => $this->resolveImageUrl($categoryImagePath),
-                'posts' => $category->posts->map(function (BlogPost $post) {
+                'posts' => $posts->map(function (BlogPost $post) {
                     return [
                         'id' => $post->id,
                         'title' => $post->title,
@@ -57,7 +58,7 @@ class BlogCategoryApiController extends Controller
                     ];
                 }),
             ];
-        });
+        })->filter()->values();
 
         return response()->json([
             'data' => $data,
