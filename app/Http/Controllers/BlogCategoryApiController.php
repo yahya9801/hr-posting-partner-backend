@@ -170,10 +170,11 @@ class BlogCategoryApiController extends Controller
     public function latestBySlug(string $slug): JsonResponse
     {
         $blogPost = BlogPost::where('slug', $slug)->first();
-
+        
         if (!$blogPost) {
             return response()->json(['message' => 'Blog post not found'], 404);
         }
+        $category =  BlogCategory::find($blogPost->category_id);
 
         $excludedCategoryId = $blogPost->category_id;
 
