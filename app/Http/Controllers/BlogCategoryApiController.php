@@ -169,34 +169,54 @@ class BlogCategoryApiController extends Controller
 
     public function latestBySlug(string $slug): JsonResponse
     {
-        // $blogPost = BlogPost::where('slug', $slug)->first();
-        $category =  BlogCategory::where('slug', $slug)->first();
-        
+        $category = BlogCategory::where('slug', $slug)->first();
+
         if (!$category) {
-            return response()->json(['message' => 'Blog post not found'], 404);
+            return response()->json(['message' => 'Category not found'], 404);
         }
 
-        // $excludedCategoryId = $blogPost->category_id;
+        $excludeSlug = trim((string) request()->input('exclude'));
 
-        $categories = BlogCategory::query()
-            ->when($category, function ($query) use ($category) {
-                $query->where('id', '!=', $category->id);
-            })
-            ->orderBy('name')
-            ->take(5)
-            ->get([
+        $posts = BlogPost::query()
+            ->select([
                 'id',
-                'name',
+                'category_id',
+                'title',
                 'slug',
+                'content',
+                'featured_image_path',
+                'published_at',
+                'created_at',
+                'is_featured',
             ])
-            ->map(fn (BlogCategory $category) => [
+            ->where('status', BlogPost::STATUS_PUBLISHED)
+            ->where('category_id', $category->id)
+            ->when($excludeSlug !== '', function ($query) use ($excludeSlug) {
+                $query->where('slug', '!=', $excludeSlug);
+            })
+            ->orderByDesc('published_at')
+            ->orderByDesc('created_at')
+            ->take(5)
+            ->get()
+            ->map(function (BlogPost $post) {
+                return [
+                    'id' => $post->id,
+                    'title' => $post->title,
+                    'slug' => $post->slug,
+                    'excerpt' => Str::limit(strip_tags((string) $post->content), 160),
+                    'image_url' => $this->resolveImageUrl($post->featured_image_path),
+                    'published_at' => $this->formatPublishedAt($post),
+                    'is_featured' => (bool) $post->is_featured,
+                ];
+            });
+
+        return response()->json([
+            'category' => [
                 'id' => $category->id,
                 'name' => $category->name,
                 'slug' => $category->slug,
-            ]);
-
-        return response()->json([
-            'data' => $categories,
+            ],
+            'data' => $posts,
         ]);
     }
 
