@@ -6,6 +6,7 @@ use App\Models\BlogCategory;
 use App\Models\BlogPost;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class BlogCategoryApiController extends Controller
 {
@@ -101,5 +102,67 @@ class BlogCategoryApiController extends Controller
         }
 
         return sprintf('%s/storage/%s', $baseUrl, ltrim($path, '/'));
+    }
+
+    public function postsBySlug(string $slug): JsonResponse
+    {
+        $category = BlogCategory::where('slug', $slug)->first();
+
+        if (!$category) {
+            return response()->json(['message' => 'Category not found'], 404);
+        }
+
+        $paginator = BlogPost::query()
+            ->select([
+                'id',
+                'category_id',
+                'title',
+                'slug',
+                'content',
+                'featured_image_path',
+                'published_at',
+                'created_at',
+                'is_featured',
+            ])
+            ->where('status', BlogPost::STATUS_PUBLISHED)
+            ->where('category_id', $category->id)
+            ->orderByDesc('published_at')
+            ->orderByDesc('created_at')
+            ->paginate(10);
+
+        $paginator->getCollection()->transform(function (BlogPost $post) {
+            $timestamp = $post->published_at ?? $post->created_at;
+            $isoDate = $timestamp
+                ? $timestamp->timezone(config('app.timezone'))->toDateString()
+                : null;
+
+            return [
+                'id' => $post->id,
+                'title' => $post->title,
+                'slug' => $post->slug,
+                'excerpt' => Str::limit(strip_tags((string) $post->content), 160),
+                'image_url' => $this->resolveImageUrl($post->featured_image_path),
+                'published_at' => $isoDate,
+                'published_at_readable' => $this->formatPublishedAt($post),
+                'is_featured' => (bool) $post->is_featured,
+            ];
+        });
+
+        return response()->json([
+            'category' => [
+                'id' => $category->id,
+                'name' => $category->name,
+                'slug' => $category->slug,
+                'total_posts' => $paginator->total(),
+            ],
+            'data' => $paginator->items(),
+            'meta' => [
+                'current_page' => $paginator->currentPage(),
+                'last_page' => $paginator->lastPage(),
+                'per_page' => $paginator->perPage(),
+                'total' => $paginator->total(),
+                'has_more' => $paginator->hasMorePages(),
+            ],
+        ]);
     }
 }
