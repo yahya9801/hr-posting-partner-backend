@@ -172,51 +172,30 @@ class BlogCategoryApiController extends Controller
         $blogPost = BlogPost::where('slug', $slug)->first();
 
         if (!$blogPost) {
-            return response()->json(['message' => 'Category not found'], 404);
+            return response()->json(['message' => 'Blog post not found'], 404);
         }
 
-        $excludeSlug = trim((string) request()->input('exclude'));
+        $excludedCategoryId = $blogPost->category_id;
 
-        $posts = BlogPost::query()
-            ->select([
-                'id',
-                'category_id',
-                'title',
-                'slug',
-                'content',
-                'featured_image_path',
-                'published_at',
-                'created_at',
-                'is_featured',
-            ])
-            ->where('status', BlogPost::STATUS_PUBLISHED)
-            ->where('category_id', $blogPost->category_id)
-            ->when($excludeSlug !== '', function ($query) use ($excludeSlug) {
-                $query->where('slug', '!=', $excludeSlug);
+        $categories = BlogCategory::query()
+            ->when($excludedCategoryId, function ($query) use ($excludedCategoryId) {
+                $query->where('id', '!=', $excludedCategoryId);
             })
-            ->orderByDesc('published_at')
-            ->orderByDesc('created_at')
+            ->orderBy('name')
             ->take(5)
-            ->get()
-            ->map(function (BlogPost $post) {
-                return [
-                    'id' => $post->id,
-                    'title' => $post->title,
-                    'slug' => $post->slug,
-                    'excerpt' => Str::limit(strip_tags((string) $post->content), 160),
-                    'image_url' => $this->resolveImageUrl($post->featured_image_path),
-                    'published_at' => $this->formatPublishedAt($post),
-                    'is_featured' => (bool) $post->is_featured,
-                ];
-            });
-
-        return response()->json([
-            'category' => [
+            ->get([
+                'id',
+                'name',
+                'slug',
+            ])
+            ->map(fn (BlogCategory $category) => [
                 'id' => $category->id,
                 'name' => $category->name,
                 'slug' => $category->slug,
-            ],
-            'data' => $posts,
+            ]);
+
+        return response()->json([
+            'data' => $categories,
         ]);
     }
 
