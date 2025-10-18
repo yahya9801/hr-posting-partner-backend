@@ -124,6 +124,39 @@ class BlogPostApiController extends Controller
         ]);
     }
 
+    public function featured(): JsonResponse
+    {
+        $posts = BlogPost::query()
+            ->with(['category:id,name,slug'])
+            ->where('status', BlogPost::STATUS_PUBLISHED)
+            ->where('is_featured', true)
+            ->orderByDesc('published_at')
+            ->orderByDesc('created_at')
+            ->take(3)
+            ->get();
+
+        $data = $posts->map(function (BlogPost $post) {
+            return [
+                'id' => $post->id,
+                'title' => $post->title,
+                'slug' => $post->slug,
+                'excerpt' => Str::limit(strip_tags((string) $post->content), 160),
+                'image_url' => $this->resolveImageUrl($post->featured_image_path),
+                'published_at' => $this->formatIsoDate($post->published_at ?? $post->created_at),
+                'published_at_readable' => $this->formatDisplayDate($post),
+                'category' => $post->category ? [
+                    'id' => $post->category->id,
+                    'name' => $post->category->name,
+                    'slug' => $post->category->slug,
+                ] : null,
+            ];
+        });
+
+        return response()->json([
+            'data' => $data,
+        ]);
+    }
+
     private function formatIsoDate(?Carbon $timestamp): ?string
     {
         if (!$timestamp) {

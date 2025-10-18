@@ -154,6 +154,7 @@ class BlogCategoryApiController extends Controller
                 'name' => $category->name,
                 'slug' => $category->slug,
                 'total_posts' => $paginator->total(),
+                'back_url' => url('/'),
             ],
             'data' => $paginator->items(),
             'meta' => [
