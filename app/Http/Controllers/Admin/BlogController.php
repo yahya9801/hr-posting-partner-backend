@@ -59,6 +59,7 @@ class BlogController extends Controller
             'content' => $data['content'],
             'featured_image_path' => $featuredImagePath,
             'status' => $status,
+            'is_featured' => $request->boolean('is_featured'),
             'author_id' => Auth::id(),
             'category_id' => $categoryId,
             'published_at' => $publishedAt,
@@ -103,6 +104,7 @@ class BlogController extends Controller
             'content' => $data['content'],
             'featured_image_path' => $featuredImagePath,
             'status' => $status,
+            'is_featured' => $request->boolean('is_featured'),
             'category_id' => $categoryId,
             'published_at' => $this->resolvePublishedAt(array_merge($data, ['status' => $status]), $blog),
         ]);
@@ -135,6 +137,7 @@ class BlogController extends Controller
             'status' => ['required', Rule::in(BlogPost::STATUSES)],
             'published_at' => ['nullable', 'date'],
             'category_id' => ['nullable', 'string', 'max:80'],
+            'is_featured' => ['sometimes', 'boolean'],
         ], [
             'slug.regex' => 'The slug must use kebab-case (lowercase letters, numbers, and hyphens).',
         ]);

@@ -15,6 +15,9 @@
                     @if ($post->category)
                         <span>Category: <span class="font-semibold text-gray-700">{{ $post->category->name }}</span></span>
                     @endif
+                    @if ($post->is_featured)
+                        <span class="inline-flex items-center px-2.5 py-1 rounded text-xs font-semibold bg-blue-100 text-blue-800">Featured</span>
+                    @endif
                 </div>
             </div>
             <div class="flex items-center space-x-3">

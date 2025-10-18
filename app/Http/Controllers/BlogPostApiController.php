@@ -49,6 +49,7 @@ class BlogPostApiController extends Controller
                 'image_url' => $this->resolveImageUrl($post->featured_image_path),
                 'published_at' => $this->formatIsoDate($post->published_at ?? $post->created_at),
                 'published_at_readable' => $this->formatDisplayDate($post),
+                'is_featured' => (bool) $post->is_featured,
                 'category' => $post->category ? [
                     'id' => $post->category->id,
                     'name' => $post->category->name,
@@ -102,6 +103,7 @@ class BlogPostApiController extends Controller
                 'image_url' => $imageUrl,
                 'published_at' => $isoPublishedAt,
                 'published_at_readable' => $displayPublishedAt,
+                'is_featured' => (bool) $post->is_featured,
                 'category' => $post->category ? [
                     'id' => $post->category->id,
                     'name' => $post->category->name,

@@ -13,6 +13,13 @@
     $statusValue = old('status', $post->status ?? \App\Models\BlogPost::STATUS_DRAFT);
     $categoryValue = old('category_id', $post->category_id ?? '');
 
+    $featuredOldValue = old('is_featured');
+    if ($featuredOldValue === null) {
+        $isFeaturedValue = (bool) ($post->is_featured ?? false);
+    } else {
+        $isFeaturedValue = filter_var($featuredOldValue, FILTER_VALIDATE_BOOLEAN);
+    }
+
     $baseInputClasses = 'w-full rounded-md px-3 py-2 border shadow-sm bg-white focus:outline-none transition-colors';
     $inputClasses = fn (string $field) => $baseInputClasses
         . ($errors->has($field)
@@ -63,6 +70,25 @@
                 @endforeach
             </select>
             @error('status')
+                <p class="text-sm text-red-600 mt-2">{{ $message }}</p>
+            @enderror
+        </div>
+        <div class="bg-gray-50 border border-gray-200 rounded-md p-4">
+            <label class="block text-sm font-semibold text-gray-700 mb-1" for="is_featured">Featured Post</label>
+            <input type="hidden" name="is_featured" value="0">
+            <label class="inline-flex items-center gap-2 text-sm text-gray-700">
+                <input
+                    id="is_featured"
+                    type="checkbox"
+                    name="is_featured"
+                    value="1"
+                    class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    @checked($isFeaturedValue)
+                >
+                <span>Feature this post on the public site</span>
+            </label>
+            <p class="text-xs text-gray-500 mt-2">Featured posts can be highlighted on the front end.</p>
+            @error('is_featured')
                 <p class="text-sm text-red-600 mt-2">{{ $message }}</p>
             @enderror
         </div>

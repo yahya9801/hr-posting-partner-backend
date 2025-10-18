@@ -27,6 +27,7 @@ class BlogPost extends Model
         'content',
         'featured_image_path',
         'status',
+        'is_featured',
         'author_id',
         'published_at',
         'category_id',
@@ -34,6 +35,7 @@ class BlogPost extends Model
 
     protected $casts = [
         'published_at' => 'datetime',
+        'is_featured' => 'boolean',
     ];
 
     protected static function booted(): void

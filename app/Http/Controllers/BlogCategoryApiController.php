@@ -55,6 +55,7 @@ class BlogCategoryApiController extends Controller
                         'slug' => $post->slug,
                         'image_url' => $this->resolveImageUrl($post->featured_image_path),
                         'published_at' => $this->formatPublishedAt($post),
+                        'is_featured' => (bool) $post->is_featured,
                     ];
                 }),
             ];
