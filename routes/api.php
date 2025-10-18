@@ -33,11 +33,21 @@ Route::get('/experience', [RoleController::class, 'experience']);
 Route::post('/editor-upload', [EditorUploadController::class, 'store']);
 
 Route::get('/jobs', [JobsApiController::class, 'index']);
+Route::get('/jobs/latest', [JobsApiController::class, 'latest'])
+    ->middleware('throttle:60,1');
 Route::get('/jobs/{slug}', [JobsApiController::class, 'showBySlug']);
 Route::get('/blogs/categories', [BlogCategoryApiController::class, 'index']);
 Route::get('/blogs/categories/{slug}/posts', [BlogCategoryApiController::class, 'postsBySlug'])
     ->where('slug', '[A-Za-z0-9-]+');
 Route::get('/blogs/featured', [BlogPostApiController::class, 'featured']);
+Route::get('/blogs/latest', [BlogPostApiController::class, 'latest'])
+    ->middleware('throttle:60,1');
+Route::get('/blogs/categories/{slug}/latest', [BlogCategoryApiController::class, 'latestBySlug'])
+    ->where('slug', '[A-Za-z0-9-]+')
+    ->middleware('throttle:60,1');
+Route::get('/blogs/categories-excluding/{slug}', [BlogCategoryApiController::class, 'excludeSlug'])
+    ->where('slug', '[A-Za-z0-9-]+')
+    ->middleware('throttle:60,1');
 Route::get('/blogs/search', [BlogPostApiController::class, 'search']);
 Route::get('/blogs/{slug}', [BlogPostApiController::class, 'show'])
     ->where('slug', '[A-Za-z0-9-]+');

@@ -166,4 +166,78 @@ class BlogCategoryApiController extends Controller
             ],
         ]);
     }
+
+    public function latestBySlug(string $slug): JsonResponse
+    {
+        $category = BlogCategory::where('slug', $slug)->first();
+
+        if (!$category) {
+            return response()->json(['message' => 'Category not found'], 404);
+        }
+
+        $excludeSlug = trim((string) request()->input('exclude'));
+
+        $posts = BlogPost::query()
+            ->select([
+                'id',
+                'category_id',
+                'title',
+                'slug',
+                'content',
+                'featured_image_path',
+                'published_at',
+                'created_at',
+                'is_featured',
+            ])
+            ->where('status', BlogPost::STATUS_PUBLISHED)
+            ->where('category_id', $category->id)
+            ->when($excludeSlug !== '', function ($query) use ($excludeSlug) {
+                $query->where('slug', '!=', $excludeSlug);
+            })
+            ->orderByDesc('published_at')
+            ->orderByDesc('created_at')
+            ->take(5)
+            ->get()
+            ->map(function (BlogPost $post) {
+                return [
+                    'id' => $post->id,
+                    'title' => $post->title,
+                    'slug' => $post->slug,
+                    'excerpt' => Str::limit(strip_tags((string) $post->content), 160),
+                    'image_url' => $this->resolveImageUrl($post->featured_image_path),
+                    'published_at' => $this->formatPublishedAt($post),
+                    'is_featured' => (bool) $post->is_featured,
+                ];
+            });
+
+        return response()->json([
+            'category' => [
+                'id' => $category->id,
+                'name' => $category->name,
+                'slug' => $category->slug,
+            ],
+            'data' => $posts,
+        ]);
+    }
+
+    public function excludeSlug(string $slug): JsonResponse
+    {
+        $categories = BlogCategory::query()
+            ->where('slug', '!=', $slug)
+            ->orderBy('name')
+            ->get([
+                'id',
+                'name',
+                'slug',
+            ])
+            ->map(fn (BlogCategory $category) => [
+                'id' => $category->id,
+                'name' => $category->name,
+                'slug' => $category->slug,
+            ]);
+
+        return response()->json([
+            'data' => $categories,
+        ]);
+    }
 }

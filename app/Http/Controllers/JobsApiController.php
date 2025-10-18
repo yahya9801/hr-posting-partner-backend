@@ -107,5 +107,29 @@ class JobsApiController extends Controller
         return response()->json($job);
     }
 
+    public function latest()
+    {
+        $jobs = Job::with('locations')
+            ->orderByDesc('posted_at')
+            ->orderByDesc('created_at')
+            ->take(5)
+            ->get();
+
+        $data = $jobs->map(function (Job $job) {
+            return [
+                'id' => $job->id,
+                'title' => $job->job_title,
+                'slug' => $job->slug,
+                'short_description' => $job->short_description,
+                'posted_at' => $job->posted_at ? Carbon::parse($job->posted_at)->toDateString() : null,
+                'locations' => $job->locations->pluck('name'),
+            ];
+        });
+
+        return response()->json([
+            'data' => $data,
+        ]);
+    }
+
 
 }
