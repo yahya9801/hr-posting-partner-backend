@@ -3,6 +3,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 
 class BlogPost extends Model
@@ -75,5 +77,20 @@ class BlogPost extends Model
     public function category()
     {
         return $this->belongsTo(BlogCategory::class, 'category_id');
+    }
+
+    protected function publishedAt(): Attribute
+    {
+        return Attribute::set(function ($value) {
+            if ($value === null || $value === '') {
+                return null;
+            }
+
+            $date = $value instanceof Carbon
+                ? $value
+                : Carbon::parse($value);
+
+            return $date->copy()->startOfDay();
+        });
     }
 }

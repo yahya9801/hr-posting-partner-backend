@@ -61,7 +61,7 @@
                                 </span>
                             </td>
                             <td class="px-4 py-3 text-sm text-gray-600">
-                                {{ $post->published_at ? $post->published_at->format('Y-m-d H:i') : '--' }}
+                                {{ $post->published_at ? $post->published_at->format('Y-m-d') : '--' }}
                             </td>
                             <td class="px-4 py-3 text-sm text-gray-600">{{ $post->updated_at->diffForHumans() }}</td>
                             <td class="px-4 py-3 text-right space-x-3">

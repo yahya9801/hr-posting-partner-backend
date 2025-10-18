@@ -3,8 +3,11 @@
     $post = $post ?? null;
 
     $publishedAtValue = old('published_at');
+    if (is_string($publishedAtValue) && str_contains($publishedAtValue, 'T')) {
+        $publishedAtValue = explode('T', $publishedAtValue, 2)[0];
+    }
     if (!$publishedAtValue && $post?->published_at) {
-        $publishedAtValue = $post->published_at->format('Y-m-d\\TH:i');
+        $publishedAtValue = $post->published_at->format('Y-m-d');
     }
 
     $statusValue = old('status', $post->status ?? \App\Models\BlogPost::STATUS_DRAFT);
@@ -119,7 +122,7 @@
         <label class="block text-sm font-semibold text-gray-700 mb-1" for="published_at">Publish Date</label>
         <input
             id="published_at"
-            type="datetime-local"
+            type="date"
             name="published_at"
             value="{{ $publishedAtValue }}"
             class="{{ $inputClasses('published_at') }}"

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\BlogPost;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -40,16 +41,14 @@ class BlogPostApiController extends Controller
             ->get();
 
         $data = $posts->map(function (BlogPost $post) {
-            $timestamp = $post->published_at ?? $post->created_at;
-
             return [
                 'id' => $post->id,
                 'title' => $post->title,
                 'slug' => $post->slug,
                 'excerpt' => Str::limit(strip_tags((string) $post->content), 160),
                 'image_url' => $this->resolveImageUrl($post->featured_image_path),
-                'published_at' => $timestamp ? $timestamp->toIso8601String() : null,
-                'published_at_readable' => $timestamp ? $this->formatDisplayDate($post) : null,
+                'published_at' => $this->formatIsoDate($post->published_at ?? $post->created_at),
+                'published_at_readable' => $this->formatDisplayDate($post),
                 'category' => $post->category ? [
                     'id' => $post->category->id,
                     'name' => $post->category->name,
@@ -81,7 +80,7 @@ class BlogPostApiController extends Controller
         $contentHtml = clean($post->content);
         $plainExcerpt = Str::limit(strip_tags($contentHtml), 160);
 
-        $isoPublishedAt = optional($post->published_at)->toIso8601String();
+        $isoPublishedAt = $this->formatIsoDate($post->published_at);
         $displayPublishedAt = $this->formatDisplayDate($post);
 
         $baseUrl = config('app.url');
@@ -123,6 +122,17 @@ class BlogPostApiController extends Controller
         ]);
     }
 
+    private function formatIsoDate(?Carbon $timestamp): ?string
+    {
+        if (!$timestamp) {
+            return null;
+        }
+
+        return $timestamp
+            ->timezone(config('app.timezone'))
+            ->toDateString();
+    }
+
     private function formatDisplayDate(BlogPost $post): ?string
     {
         $timestamp = $post->published_at ?? $post->created_at;
@@ -132,7 +142,7 @@ class BlogPostApiController extends Controller
         }
 
         return $timestamp->timezone(config('app.timezone'))
-            ->format('M d, Y H:i');
+            ->format('M d, Y');
     }
 
     private function resolveImageUrl(?string $path): ?string

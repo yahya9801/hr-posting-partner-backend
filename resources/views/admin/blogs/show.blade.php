@@ -24,8 +24,8 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600 mb-6">
-            <div>Published: {{ $post->published_at ? $post->published_at->format('M d, Y \a\t H:i') : 'Not published' }}</div>
-            <div>Last updated: {{ $post->updated_at->format('M d, Y \a\t H:i') }}</div>
+            <div>Published: {{ $post->published_at ? $post->published_at->format('M d, Y') : 'Not published' }}</div>
+            <div>Last updated: {{ $post->updated_at->format('M d, Y') }}</div>
             <div>Author: {{ optional($post->author)->name ?? '-' }}</div>
         </div>
 

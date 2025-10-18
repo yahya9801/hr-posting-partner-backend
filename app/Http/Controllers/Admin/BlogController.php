@@ -147,19 +147,19 @@ class BlogController extends Controller
 
         if ($status === BlogPost::STATUS_PUBLISHED) {
             if ($publishedAt) {
-                return Carbon::parse($publishedAt);
+                return Carbon::parse($publishedAt)->startOfDay();
             }
 
             if ($existing && $existing->published_at) {
                 return $existing->published_at;
             }
 
-            return Carbon::now();
+            return Carbon::today();
         }
 
         if ($status === BlogPost::STATUS_ARCHIVED) {
             if ($publishedAt) {
-                return Carbon::parse($publishedAt);
+                return Carbon::parse($publishedAt)->startOfDay();
             }
 
             return $existing?->published_at;

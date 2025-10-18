@@ -74,7 +74,7 @@ class BlogCategoryApiController extends Controller
         }
 
         return $timestamp->timezone(config('app.timezone'))
-            ->format('M d, Y H:i');
+            ->format('M d, Y');
     }
 
     private function resolveImageUrl(?string $path): ?string
