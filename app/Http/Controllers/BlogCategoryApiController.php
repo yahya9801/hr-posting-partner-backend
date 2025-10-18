@@ -169,7 +169,7 @@ class BlogCategoryApiController extends Controller
 
     public function latestBySlug(string $slug): JsonResponse
     {
-        $category = BlogCategory::where('slug', $slug)->first();
+        $blogPost = BlogPost::where('slug', $slug)->first();
 
         if (!$category) {
             return response()->json(['message' => 'Category not found'], 404);
@@ -190,7 +190,7 @@ class BlogCategoryApiController extends Controller
                 'is_featured',
             ])
             ->where('status', BlogPost::STATUS_PUBLISHED)
-            ->where('category_id', $category->id)
+            ->where('category_id', $blogPost->category_id)
             ->when($excludeSlug !== '', function ($query) use ($excludeSlug) {
                 $query->where('slug', '!=', $excludeSlug);
             })
