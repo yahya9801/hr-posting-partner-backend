@@ -176,11 +176,11 @@ class BlogCategoryApiController extends Controller
             return response()->json(['message' => 'Blog post not found'], 404);
         }
 
-        $excludedCategoryId = $blogPost->category_id;
+        // $excludedCategoryId = $blogPost->category_id;
 
         $categories = BlogCategory::query()
-            ->when($excludedCategoryId, function ($query) use ($excludedCategoryId) {
-                $query->where('id', '!=', $excludedCategoryId);
+            ->when($category, function ($query) use ($category) {
+                $query->where('id', '!=', $category->id);
             })
             ->orderBy('name')
             ->take(5)
