@@ -171,7 +171,7 @@ class BlogCategoryApiController extends Controller
     {
         $blogPost = BlogPost::where('slug', $slug)->first();
 
-        if (!$category) {
+        if (!$blogPost) {
             return response()->json(['message' => 'Category not found'], 404);
         }
 
