@@ -220,6 +220,34 @@ class BlogCategoryApiController extends Controller
         ]);
     }
 
+    public function top(): JsonResponse
+    {
+        $categories = BlogCategory::query()
+            ->select([
+                'id',
+                'name',
+                'slug',
+            ])
+            ->withCount([
+                'posts as published_posts_count' => function ($query) {
+                    $query->where('status', BlogPost::STATUS_PUBLISHED);
+                },
+            ])
+            ->orderByDesc('published_posts_count')
+            ->take(5)
+            ->get()
+            ->map(fn (BlogCategory $category) => [
+                'id' => $category->id,
+                'name' => $category->name,
+                'slug' => $category->slug,
+                'total_posts' => (int) $category->published_posts_count,
+            ]);
+
+        return response()->json([
+            'data' => $categories,
+        ]);
+    }
+
     public function excludeSlug(string $slug): JsonResponse
     {
         $categories = BlogCategory::query()

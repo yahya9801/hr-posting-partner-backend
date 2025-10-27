@@ -36,6 +36,8 @@ Route::get('/jobs', [JobsApiController::class, 'index']);
 Route::get('/jobs/latest', [JobsApiController::class, 'latest'])
     ->middleware('throttle:60,1');
 Route::get('/jobs/{slug}', [JobsApiController::class, 'showBySlug']);
+Route::get('/blogs/categories/top', [BlogCategoryApiController::class, 'top'])
+    ->middleware('throttle:60,1');
 Route::get('/blogs/categories', [BlogCategoryApiController::class, 'index']);
 Route::get('/blogs/categories/{slug}/posts', [BlogCategoryApiController::class, 'postsBySlug'])
     ->where('slug', '[A-Za-z0-9-]+');
