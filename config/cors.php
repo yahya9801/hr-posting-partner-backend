@@ -19,7 +19,11 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['*'],
+    'allowed_origins' => [
+        'https://hrpp-next-two.vercel.app',
+        'https://hrpostingpartner.com',
+        'https://www.hrpostingpartner.com',
+    ],
 
     'allowed_origins_patterns' => [],
 
