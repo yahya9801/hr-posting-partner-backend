@@ -83,6 +83,7 @@ class JobsApiController extends Controller
                     'images' => $job->images->map(fn($img) => asset('storage/' . $img->image_path)),
                     'locations' => $job->locations->pluck('name'),
                     'roles' => $job->roles->pluck('name'),
+                    'views' => $job->views_count
                 ];
             }),
             'meta' => [
