@@ -41,7 +41,7 @@
                         <a
                             target="_blank"
                             class="text-blue-600 underline break-words"
-                            href="https://hrpostingpartner.com/classified-jobs/{{ $job->job_title }}"
+                            href="https://hrpostingpartner.com/classified-jobs/{{ $job->slug }}"
                         >
                             https://hrpostingpartner.com/classified-jobs/{{ $job->slug }}
                         </a>
