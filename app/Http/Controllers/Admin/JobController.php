@@ -13,11 +13,23 @@ use Mews\Purifier\Facades\Purifier; // if using mews/purifier
 
 class JobController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $jobs = Job::latest()->paginate(10); // Show 10 jobs per page
+        $search = $request->input('search');
 
-        return view('admin.jobs.index', compact('jobs'));
+        $jobs = Job::query()
+            ->when($search, function ($query, $search) {
+                $query->where(function ($subQuery) use ($search) {
+                    $subQuery->where('job_title', 'like', '%' . $search . '%')
+                        ->orWhere('slug', 'like', '%' . $search . '%')
+                        ->orWhere('description', 'like', '%' . $search . '%');
+                });
+            })
+            ->latest()
+            ->paginate(10) // Show 10 jobs per page
+            ->withQueryString();
+
+        return view('admin.jobs.index', compact('jobs', 'search'));
     }
 
     public function create()
