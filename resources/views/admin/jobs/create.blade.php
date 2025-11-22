@@ -15,6 +15,11 @@
     $preselectedExperiences = \App\Models\Experience::whereIn('id', $experienceIds)->get();
 @endphp
 
+@php
+    $companyIds = old('companies', []);
+    $preselectedCompanies = \App\Models\Company::whereIn('id', $companyIds)->get();
+@endphp
+
 @section('content')
     <div class="max-w-3xl mx-auto bg-white p-8 rounded shadow">
         <h2 class="text-2xl font-bold text-gray-800 mb-6">Create New Job</h2>
@@ -82,6 +87,17 @@
                     @endif
                 </select>
 
+            </div>
+
+            {{-- Company --}}
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Company Name</label>
+                <select name="companies[]" id="company-select" multiple class="w-full border border-gray-300 p-2 rounded">
+                    @foreach ($preselectedCompanies as $company)
+                        <option value="{{ $company->id }}" selected>{{ $company->name }}</option>
+                    @endforeach
+                </select>
+                <p class="text-xs text-gray-500 mt-1">Type to add a new company.</p>
             </div>
 
             {{-- Short Description --}}
@@ -196,6 +212,24 @@
             width: '100%',
             ajax: {
                 url: "{{ url('/api/experience') }}",
+                dataType: 'json',
+                delay: 250,
+                data: params => ({ q: params.term }),
+                processResults: data => ({ results: data }),
+                cache: true
+            },
+            createTag: params => {
+                const term = $.trim(params.term);
+                return term ? { id: term, text: term, newTag: true } : null;
+            }
+        });
+
+        $('#company-select').select2({
+            tags: true,
+            placeholder: "Select or type a company",
+            width: '100%',
+            ajax: {
+                url: "{{ url('/api/companies') }}",
                 dataType: 'json',
                 delay: 250,
                 data: params => ({ q: params.term }),

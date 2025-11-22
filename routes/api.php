@@ -11,6 +11,7 @@ use App\Http\Controllers\LocationApiController;
 use App\Http\Controllers\BlogCategoryApiController;
 use App\Http\Controllers\BlogPostApiController;
 use App\Http\Controllers\JobViewController;
+use App\Http\Controllers\CompanyController;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,6 +31,7 @@ Route::middleware('auth:sanctum')->get('/me', [AuthController::class, 'me']);
 Route::get('/locations', [LocationController::class, 'index']);
 Route::get('/roles', [RoleController::class, 'index']);
 Route::get('/experience', [RoleController::class, 'experience']);
+Route::get('/companies', [CompanyController::class, 'index']);
 
 Route::post('/editor-upload', [EditorUploadController::class, 'store']);
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Company;
 use App\Models\Experience;
 use App\Models\Job;
 use App\Models\Location;
@@ -18,7 +19,7 @@ class JobController extends Controller
         $search = $request->input('search');
 
         $jobs = Job::query()
-            ->with('experiences')
+            ->with(['experiences', 'companies'])
             ->when($search, function ($query, $search) {
                 $query->where(function ($subQuery) use ($search) {
                     $subQuery->where('job_title', 'like', '%' . $search . '%')
@@ -41,9 +42,7 @@ class JobController extends Controller
 
     public function show(Job $job)
     {
-        $job->load('locations'); // eager load relationships\
-        $job->load('roles');
-        $job->load('experiences');
+        $job->load(['locations', 'roles', 'experiences', 'companies']);
         return view('admin.jobs.show', compact('job'));
     }
       
@@ -54,6 +53,7 @@ class JobController extends Controller
             'description' => 'nullable|string',
             'short_description' => 'nullable|string',
             'experience' => 'required|array',
+            'companies' => 'required|array',
             'posted_at'   => 'required|date',
             'expiry_date'   => 'required|date',
             'images.*'          => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048', // Each image rule
@@ -107,15 +107,27 @@ class JobController extends Controller
         }
         $job->locations()->sync($locationIds);
 
-        foreach ($data['experience'] as $loc) {
-            if (is_numeric($loc)) {
-                $experienceIds[] = $loc;
+        $experienceIds = [];
+        foreach ($data['experience'] as $experienceValue) {
+            if (is_numeric($experienceValue)) {
+                $experienceIds[] = $experienceValue;
             } else {
-                $experience = Experience::firstOrCreate(['name' => $loc]);
+                $experience = Experience::firstOrCreate(['name' => $experienceValue]);
                 $experienceIds[] = $experience->id;
             }
         }
         $job->experiences()->sync($experienceIds);
+
+        $companyIds = [];
+        foreach ($data['companies'] as $companyValue) {
+            if (is_numeric($companyValue)) {
+                $companyIds[] = $companyValue;
+            } else {
+                $company = Company::firstOrCreate(['name' => $companyValue]);
+                $companyIds[] = $company->id;
+            }
+        }
+        $job->companies()->sync($companyIds);
     
         // ✅ Sync roles
         $roleIds = [];
@@ -139,10 +151,9 @@ class JobController extends Controller
         $locations = Location::all();
         $roles = Role::all();
         $experiences = Experience::all();
-        $job->load('locations'); // eager load relationships\
-        $job->load('roles');
-        $job->load('experiences');
-        return view('admin.jobs.edit', compact('job', 'locations', 'roles', 'experiences'));
+        $companies = Company::all();
+        $job->load(['locations', 'roles', 'experiences', 'companies']);
+        return view('admin.jobs.edit', compact('job', 'locations', 'roles', 'experiences', 'companies'));
     }
 
     public function update(Request $request, Job $job)
@@ -159,6 +170,7 @@ class JobController extends Controller
             'locations' => 'required|array',
             'roles' => 'required|array',
             'experience' => 'required|array',
+            'companies' => 'required|array',
         ]);
 
         logger($data);
@@ -205,6 +217,7 @@ class JobController extends Controller
         $job->locations()->sync($locationIds);
 
         
+        $experienceIds = [];
         foreach ($data['experience'] as $exp) {
             if (is_numeric($exp)) {
                 $experienceIds[] = $exp;
@@ -214,6 +227,17 @@ class JobController extends Controller
             }
         }
         $job->experiences()->sync($experienceIds);
+
+        $companyIds = [];
+        foreach ($data['companies'] as $companyValue) {
+            if (is_numeric($companyValue)) {
+                $companyIds[] = $companyValue;
+            } else {
+                $company = Company::firstOrCreate(['name' => $companyValue]);
+                $companyIds[] = $company->id;
+            }
+        }
+        $job->companies()->sync($companyIds);
 
         $roleIds = [];
         // dd($data['roles']);

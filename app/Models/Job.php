@@ -7,6 +7,8 @@ use Illuminate\Support\Str;
 
 class Job extends Model
 {
+    use \Illuminate\Database\Eloquent\Factories\HasFactory;
+
     protected $fillable = [
         'job_title',
         'description',
@@ -30,6 +32,11 @@ class Job extends Model
     public function experiences()
     {
         return $this->belongsToMany(Experience::class);
+    }
+
+    public function companies()
+    {
+        return $this->belongsToMany(Company::class);
     }
 
     public function images()
@@ -69,4 +76,3 @@ class Job extends Model
         return 'slug';
     }
 }
-

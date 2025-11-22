@@ -40,6 +40,17 @@
         @endforelse
     </div>
 
+    <div class="mb-4">
+        <span>Company:</span>
+        @forelse ($job->companies as $company)
+        <span class="inline-block bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded mr-1">
+            {{ $company->name }}
+        </span>
+        @empty
+        <span class="text-gray-500 text-sm">N/A</span>
+        @endforelse
+    </div>
+
     @if ($job->images && $job->images->count())
     <div class="mb-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         @foreach ($job->images as $image)

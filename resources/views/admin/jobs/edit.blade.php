@@ -78,6 +78,25 @@
             <p class="text-xs text-gray-500 mt-1">Type to add a new experience.</p>
         </div>
 
+        {{-- Company --}}
+        @php $oldCompanies = old('companies', $job->companies->pluck('id')->toArray()); @endphp
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Company Name</label>
+            <select name="companies[]" id="company-select" multiple class="w-full border border-gray-300 p-2 rounded">
+                @foreach ($companies as $company)
+                <option value="{{ $company->id }}" {{ in_array($company->id, $oldCompanies) ? 'selected' : '' }}>
+                    {{ $company->name }}
+                </option>
+                @endforeach
+                @foreach ($oldCompanies as $id)
+                @if (!in_array($id, $companies->pluck('id')->toArray()))
+                <option value="{{ $id }}" selected>{{ $id }}</option>
+                @endif
+                @endforeach
+            </select>
+            <p class="text-xs text-gray-500 mt-1">Type to add a new company.</p>
+        </div>
+
         {{-- Short Description --}}
         <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Short Description</label>
@@ -165,6 +184,7 @@
         setupSelect2('#location-select2', "{{ url('/api/locations') }}");
         setupSelect2('#role-select', "{{ url('/api/roles') }}");
         setupSelect2('#experience-select', "{{ url('/api/experience') }}");
+        setupSelect2('#company-select', "{{ url('/api/companies') }}");
 
 
         // tinymce.init({

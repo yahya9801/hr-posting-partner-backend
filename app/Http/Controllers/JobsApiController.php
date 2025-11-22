@@ -13,7 +13,7 @@ class JobsApiController extends Controller
         $limit = $request->input('limit', 10); // default 10
         $page = $request->input('page', 1);
         logger($request->all());
-        $query = Job::with('locations');
+        $query = Job::with(['locations', 'roles', 'experiences', 'companies', 'images']);
             // ->where(function ($q) {
             //     $q->whereNull('expiry_date')->orWhere('expiry_date', '>=', now());
             // })
@@ -83,6 +83,7 @@ class JobsApiController extends Controller
                     'images' => $job->images->map(fn($img) => asset('storage/' . $img->image_path)),
                     'locations' => $job->locations->pluck('name'),
                     'roles' => $job->roles->pluck('name'),
+                    'companies' => $job->companies->pluck('name'),
                     'views' => $job->views_count
                 ];
             }),
@@ -97,7 +98,7 @@ class JobsApiController extends Controller
 
     public function showBySlug($slug)
     {
-        $job = Job::with(['locations', 'roles', 'experiences', 'images'])// eager load relationships if needed
+        $job = Job::with(['locations', 'roles', 'experiences', 'companies', 'images'])// eager load relationships if needed
                 ->where('slug', $slug)
                 ->first();
         if (!$job) {
