@@ -38,6 +38,8 @@ Route::post('/editor-upload', [EditorUploadController::class, 'store']);
 Route::get('/jobs', [JobsApiController::class, 'index']);
 Route::get('/jobs/latest', [JobsApiController::class, 'latest'])
     ->middleware('throttle:60,1');
+Route::get('/jobs/cities/latest', [JobsApiController::class, 'latestByCities'])
+    ->middleware('throttle:60,1');
 Route::get('/jobs/{slug}', [JobsApiController::class, 'showBySlug']);
 Route::get('/jobs/{job:id}/views', [JobViewController::class, 'show']);
 Route::post('/jobs/{job:id}/view', [JobViewController::class, 'store']);

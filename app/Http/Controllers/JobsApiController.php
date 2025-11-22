@@ -133,5 +133,56 @@ class JobsApiController extends Controller
         ]);
     }
 
+    public function latestByCities(Request $request)
+    {
+        if (! $request->filled('cities')) {
+            return response()->json([
+                'message' => 'cities parameter is required (comma-separated city names).',
+            ], 422);
+        }
+
+        $cities = array_filter(array_map('trim', explode(',', $request->input('cities'))));
+
+        if (empty($cities)) {
+            return response()->json([
+                'message' => 'At least one valid city must be provided.',
+            ], 422);
+        }
+
+        $jobs = Job::with(['locations', 'images'])
+            ->whereHas('locations', function ($query) use ($cities) {
+                $query->whereIn('locations.name', $cities);
+            })
+            ->where(function ($query) {
+                $query->whereNull('expiry_date')
+                    ->orWhereDate('expiry_date', '>=', now()->toDateString());
+            })
+            ->orderByDesc('posted_at')
+            ->orderByDesc('created_at')
+            ->take(5)
+            ->get();
+
+        $data = $jobs->map(function (Job $job) {
+            $image = $job->images->first();
+            return [
+                'id' => $job->id,
+                'title' => $job->job_title,
+                'slug' => $job->slug,
+                'short_description' => $job->short_description,
+                'posted_at' => $job->posted_at ? Carbon::parse($job->posted_at)->toDateString() : null,
+                'expiry_date' => $job->expiry_date ? Carbon::parse($job->expiry_date)->toDateString() : null,
+                'locations' => $job->locations->pluck('name'),
+                'image' => $image ? asset('storage/' . $image->image_path) : null,
+            ];
+        });
+
+        return response()->json([
+            'data' => $data,
+            'filters' => [
+                'cities' => $cities,
+            ],
+        ]);
+    }
+
 
 }
