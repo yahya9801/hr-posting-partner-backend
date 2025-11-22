@@ -6,6 +6,9 @@
 
     <div class="text-sm text-gray-500 mb-2">
         Posted on {{ \Carbon\Carbon::parse($job->posted_at)->format('F d, Y') }}
+        @if ($job->expiry_date)
+            &middot; Expires on {{ \Carbon\Carbon::parse($job->expiry_date)->format('F d, Y') }}
+        @endif
     </div>
 
     <div class="mb-4">
@@ -26,6 +29,17 @@
         @endforeach
     </div>
 
+    <div class="mb-4">
+        <span>Experience:</span>
+        @forelse ($job->experiences as $experience)
+        <span class="inline-block bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded mr-1">
+            {{ $experience->name }}
+        </span>
+        @empty
+        <span class="text-gray-500 text-sm">N/A</span>
+        @endforelse
+    </div>
+
     @if ($job->images && $job->images->count())
     <div class="mb-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         @foreach ($job->images as $image)
@@ -42,7 +56,7 @@
     </div>
 
     <div class="mt-6">
-        <a href="{{ route('admin.jobs.index') }}" class="text-blue-600 hover:underline">← Back to Listings</a>
+        <a href="{{ route('admin.jobs.index') }}" class="text-blue-600 hover:underline">+ Back to Listings</a>
     </div>
 </div>
 @endsection

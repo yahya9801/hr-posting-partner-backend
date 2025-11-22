@@ -18,6 +18,7 @@ class JobController extends Controller
         $search = $request->input('search');
 
         $jobs = Job::query()
+            ->with('experiences')
             ->when($search, function ($query, $search) {
                 $query->where(function ($subQuery) use ($search) {
                     $subQuery->where('job_title', 'like', '%' . $search . '%')
@@ -42,6 +43,7 @@ class JobController extends Controller
     {
         $job->load('locations'); // eager load relationships\
         $job->load('roles');
+        $job->load('experiences');
         return view('admin.jobs.show', compact('job'));
     }
       

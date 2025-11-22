@@ -27,6 +27,7 @@
                 <tr>
                     <th class="p-3">Job Title</th>
                     <th class="p-3">Slug</th>
+                    <th class="p-3">Experience</th>
                     <th class="p-3">Posted At</th>
                     <th class="p-3">Expiry Date</th>
                     <th></th>
@@ -45,6 +46,9 @@
                         >
                             https://hrpostingpartner.com/classified-jobs/{{ $job->slug }}
                         </a>
+                    </td>
+                    <td class="p-3">
+                        {{ $job->experiences->isNotEmpty() ? $job->experiences->pluck('name')->join(', ') : 'N/A' }}
                     </td>
 
                     <td class="p-3">{{ \Carbon\Carbon::parse($job->posted_at)->format('Y-m-d') }}</td>
