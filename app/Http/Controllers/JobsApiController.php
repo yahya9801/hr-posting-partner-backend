@@ -194,7 +194,7 @@ class JobsApiController extends Controller
         $now = Carbon::now();
         $cutoff = (clone $now)->addDays(2)->endOfDay();
 
-        $jobs = Job::with(['locations', 'images'])
+        $jobs = Job::with(['locations', 'images', 'roles', 'experiences', 'companies'])
             ->whereNotNull('expiry_date')
             ->whereBetween('expiry_date', [$now, $cutoff])
             ->orderBy('expiry_date')
@@ -213,6 +213,9 @@ class JobsApiController extends Controller
                 'posted_at' => $job->posted_at ? Carbon::parse($job->posted_at)->toDateString() : null,
                 'expiry_date' => $job->expiry_date ? Carbon::parse($job->expiry_date)->toDateString() : null,
                 'locations' => $job->locations->pluck('name'),
+                'roles' => $job->roles->pluck('name'),
+                'experiences' => $job->experiences->pluck('name'),
+                'companies' => $job->companies->pluck('name'),
                 'image' => $image ? asset('storage/' . $image->image_path) : null,
             ];
         });
