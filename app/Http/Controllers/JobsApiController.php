@@ -184,5 +184,47 @@ class JobsApiController extends Controller
         ]);
     }
 
+    public function expiringSoon(Request $request)
+    {
+        $limit = (int) $request->input('limit', 5);
+        if ($limit <= 0) {
+            $limit = 5;
+        }
+
+        $now = Carbon::now();
+        $cutoff = (clone $now)->addDays(2)->endOfDay();
+
+        $jobs = Job::with(['locations', 'images'])
+            ->whereNotNull('expiry_date')
+            ->whereBetween('expiry_date', [$now, $cutoff])
+            ->orderBy('expiry_date')
+            ->orderByDesc('posted_at')
+            ->take($limit)
+            ->get();
+
+        $data = $jobs->map(function (Job $job) {
+            $image = $job->images->first();
+
+            return [
+                'id' => $job->id,
+                'title' => $job->job_title,
+                'slug' => $job->slug,
+                'short_description' => $job->short_description,
+                'posted_at' => $job->posted_at ? Carbon::parse($job->posted_at)->toDateString() : null,
+                'expiry_date' => $job->expiry_date ? Carbon::parse($job->expiry_date)->toDateString() : null,
+                'locations' => $job->locations->pluck('name'),
+                'image' => $image ? asset('storage/' . $image->image_path) : null,
+            ];
+        });
+
+        return response()->json([
+            'data' => $data,
+            'meta' => [
+                'limit' => $limit,
+                'window_days' => 2,
+            ],
+        ]);
+    }
+
 
 }
