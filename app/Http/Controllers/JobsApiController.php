@@ -51,6 +51,14 @@ class JobsApiController extends Controller
             $query->whereDate('posted_at', '<=', $request->input('end'));
         }
 
+        if ($request->filled('expiry_start')) {
+            $query->whereDate('expiry_date', '>=', $request->input('expiry_start'));
+        }
+
+        if ($request->filled('expiry_end')) {
+            $query->whereDate('expiry_date', '<=', $request->input('expiry_end'));
+        }
+
         if ($request->filled('experience')) {
             $experienceNames = explode(',', $request->input('experience'));
             $query->whereHas('experiences', function ($q) use ($experienceNames) {
