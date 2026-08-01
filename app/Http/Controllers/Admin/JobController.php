@@ -56,7 +56,8 @@ class JobController extends Controller
             'companies' => 'required|array',
             'posted_at'   => 'required|date',
             'expiry_date'   => 'required|date',
-            'images.*'          => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048', // Each image rule
+            'images'            => 'nullable|array',
+            'images.*'          => 'image|mimes:jpeg,png,jpg,webp|max:2048', // Each image rule
             'locations'   => 'required|array',
             'roles'       => 'required|array',
         ]);
@@ -152,13 +153,12 @@ class JobController extends Controller
         $roles = Role::all();
         $experiences = Experience::all();
         $companies = Company::all();
-        $job->load(['locations', 'roles', 'experiences', 'companies']);
+        $job->load(['locations', 'roles', 'experiences', 'companies', 'images']);
         return view('admin.jobs.edit', compact('job', 'locations', 'roles', 'experiences', 'companies'));
     }
 
     public function update(Request $request, Job $job)
     {
-        logger($request->all);
         $data = $request->validate([
             'job_title' => 'required|string|max:255',
             // 'slug' => 'nullable|string|max:255|unique:jobs,slug,' . $job->id,
@@ -166,15 +166,16 @@ class JobController extends Controller
             'description' => 'nullable|string',
             'posted_at' => 'required|date',
             'expiry_date' => 'nullable|date|after_or_equal:today',
-            'images' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048', // Each image rule
+            'images'   => 'nullable|array',
+            'images.*' => 'image|mimes:jpeg,png,jpg,webp|max:2048', // Each image rule
+            'remove_images'   => 'nullable|array',
+            'remove_images.*' => 'integer',
             'locations' => 'required|array',
             'roles' => 'required|array',
             'experience' => 'required|array',
             'companies' => 'required|array',
         ]);
 
-        logger($data);
-    
         // Update slug if provided, or regenerate if title changed
         if ($request->filled('slug')) {
             $job->slug = Job::generateUniqueSlug($request->input('slug'));
@@ -193,8 +194,17 @@ class JobController extends Controller
             'expiry_date' => $data['expiry_date'],
             // 'image_path' => $data['image_path'] ?? $job->image_path,
         ]);
-        logger($request->hasFile('images'));
 
+        // Remove the images the user ticked for deletion
+        if (!empty($data['remove_images'])) {
+            $toRemove = $job->images()->whereIn('id', $data['remove_images'])->get();
+            foreach ($toRemove as $image) {
+                Storage::disk('public')->delete($image->image_path);
+                $image->delete();
+            }
+        }
+
+        // Append any newly uploaded images
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $image) {
                 $path = $image->store('jobs', 'public');
@@ -203,7 +213,7 @@ class JobController extends Controller
                 ]);
             }
         }
-    
+
         // Sync locations
         $locationIds = [];
         foreach ($data['locations'] as $loc) {
@@ -259,6 +269,10 @@ class JobController extends Controller
     {
         if ($job->image_path) {
             Storage::disk('public')->delete($job->image_path);
+        }
+
+        foreach ($job->images as $image) {
+            Storage::disk('public')->delete($image->image_path);
         }
 
         $job->delete();

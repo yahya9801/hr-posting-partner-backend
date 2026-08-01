@@ -5,6 +5,17 @@
 <div class="max-w-3xl mx-auto bg-white p-8 rounded shadow">
     <h2 class="text-2xl font-bold text-gray-800 mb-6">Edit Job</h2>
 
+    {{-- Error Messages --}}
+    @if ($errors->any())
+    <div class="bg-red-100 text-red-800 p-4 rounded mb-6">
+        <ul class="list-disc list-inside space-y-1">
+            @foreach ($errors->all() as $error)
+            <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+    @endif
+
     <form method="POST" id="job-edit-form" action="{{ route('admin.jobs.update', $job) }}" enctype="multipart/form-data" class="space-y-6">
         @csrf
         @method('PUT')
@@ -118,12 +129,35 @@
         {{-- Image Upload --}}
         <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Images</label>
-            <input type="file" name="images[]" multiple accept="image/*" class="text-sm border rounded px-2 py-1">
-            @if ($job->images)
-            @foreach ($job->images as $image)
-            <img src="{{ asset('storage/' . $image->image_path) }}" class="mt-2 w-32 h-32 object-cover rounded" />
-            @endforeach
+
+            {{-- Existing images: tick "Remove" to delete them on save --}}
+            @if ($job->images->count())
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-4">
+                @foreach ($job->images as $image)
+                <div class="border rounded p-2">
+                    <img src="{{ asset('storage/' . $image->image_path) }}" class="w-full h-32 object-cover rounded" />
+                    <label class="flex items-center gap-2 mt-2 text-sm text-red-600">
+                        <input type="checkbox" name="remove_images[]" value="{{ $image->id }}"
+                            {{ in_array($image->id, old('remove_images', [])) ? 'checked' : '' }}>
+                        Remove
+                    </label>
+                </div>
+                @endforeach
+            </div>
+            @else
+            <p class="text-sm text-gray-500 mb-2">No images uploaded yet.</p>
             @endif
+
+            <input type="file" id="images-input" name="images[]" multiple accept="image/*" class="w-full text-sm border rounded px-3 py-2">
+            <small class="text-gray-500">Select one or more images to add. Tick “Remove” above to replace existing ones.</small>
+            <div id="images-preview" class="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-3"></div>
+
+            @error('images') <p class="text-red-500 text-sm mt-1">{{ $message }}</p> @enderror
+            @foreach ($errors->get('images.*') as $messages)
+            @foreach ($messages as $message)
+            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+            @endforeach
+            @endforeach
         </div>
 
         {{-- Posted & Expiry Dates --}}
@@ -225,5 +259,36 @@
 
     document.addEventListener('DOMContentLoaded', function() {
         handleEditorFormSubmit('job-edit-form', 'description-editor', 'hidden-description-editor');
+    });
+</script>
+<script>
+    // Preview newly selected images before upload
+    document.addEventListener('DOMContentLoaded', function() {
+        const input = document.getElementById('images-input');
+        const preview = document.getElementById('images-preview');
+
+        if (!input || !preview) return;
+
+        input.addEventListener('change', function() {
+            preview.innerHTML = '';
+            Array.from(input.files).forEach(function(file) {
+                if (!file.type.startsWith('image/')) return;
+
+                const wrapper = document.createElement('div');
+                wrapper.className = 'border rounded p-2';
+
+                const img = document.createElement('img');
+                img.className = 'w-full h-32 object-cover rounded';
+                img.src = URL.createObjectURL(file);
+                img.onload = () => URL.revokeObjectURL(img.src);
+
+                const caption = document.createElement('p');
+                caption.className = 'text-xs text-gray-500 mt-1 truncate';
+                caption.textContent = file.name;
+
+                wrapper.append(img, caption);
+                preview.appendChild(wrapper);
+            });
+        });
     });
 </script>@endpush
