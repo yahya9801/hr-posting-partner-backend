@@ -23,6 +23,7 @@ return [
         'https://hrpp-next-two.vercel.app',
         'https://hrpostingpartner.com',
         'https://www.hrpostingpartner.com',
+        'https://new.hrpostingpartner.com', // cPanel test deployment of the Next.js site
     ],
 
     'allowed_origins_patterns' => [],
